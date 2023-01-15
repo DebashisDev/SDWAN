@@ -1,0 +1,21 @@
+#############################################################
+# Script Name	: probeenv																		#
+# Description	: Environment File for  SpectaProbe						#
+# DATE 			: 19-02-2016																		#
+# AUTHOR		: Debashis.																			#
+# NOTE			: To Compile Probe For mobility 								#
+#				: MOBILITY=YES																			#
+#				: To Compile Probe For FL with Radius								#
+#				: RADIUS=YES																				#
+# Copyright (c) 2016, Pinnacle Digital (P) Ltd. New-Delhi		# 
+#############################################################
+
+PROBE_VER=3.6.0.2
+PROBE_ROOT=/home/specta/workspace/debashis/code/SpectaProbe-V3.6.0.2
+PROBE_CONF=${PROBE_ROOT}/config
+
+export PROBE_VER
+export PROBE_ROOT
+export PROBE_CONF
+
+export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
