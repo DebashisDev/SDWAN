@@ -1,0 +1,11 @@
+
+#ifdef __linux__
+#  include <fstream>
+#elif defined HPUX
+#  include <fstream.h>
+#elif defined _WIN32
+#  include <fstream>
+#else
+#  include <fstream>
+#endif
+

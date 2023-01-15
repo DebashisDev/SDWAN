@@ -1,0 +1,16 @@
+#ifndef __MP_set_h__
+#define __MP_set_h__
+
+
+#if __GNUC__ >= 3
+#  include <mp/hash_string>
+#  include <ext/hash_set>
+#  include <set>
+  namespace __gnu_cxx {};
+  using namespace __gnu_cxx;
+#else
+#  include <hash_set>
+#  include <set>
+#endif
+
+#endif

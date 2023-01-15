@@ -1,0 +1,9 @@
+
+#ifdef __GNUC__
+#  include <stdexcept>
+#elif 1 
+#  include <exception>
+#else
+#  error se necesita un include para std:exception
+#endif
+

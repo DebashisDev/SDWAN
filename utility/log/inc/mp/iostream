@@ -1,0 +1,11 @@
+#ifdef __linux__
+#  include <iostream>
+#elif defined HPUX
+#  include <iostream.h>
+#elif defined _WIN32
+#  include <iostream>
+#else
+#  include <iostream>
+#endif
+
+

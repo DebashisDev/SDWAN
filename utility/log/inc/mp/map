@@ -1,0 +1,23 @@
+#ifndef __MP_map_h__
+#define __MP_map_h__
+
+#if __GNUC__ >= 3
+#  if __DEPRECATED
+#    undef __DEPRECATED
+#    include <mp/hash_string>
+#    include <ext/hash_map>
+#    include <map>
+#    define __DEPRECATED
+#  else
+#    include <mp/hash_string>
+#    include <ext/hash_map>
+#    include <map>
+#  endif
+  namespace __gnu_cxx {};
+  using namespace __gnu_cxx;
+#else
+#  include <hash_map>
+#  include <map>
+#endif
+
+#endif

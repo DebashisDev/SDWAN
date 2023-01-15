@@ -1,0 +1,18 @@
+#ifndef __MP_hash_string_h__
+#define __MP_hash_string_h__
+
+
+#if __GNUC__ >= 3
+#  include <string>
+#  include <ext/hash_map>
+namespace __gnu_cxx
+{
+  template<> struct hash<std::string>
+  {
+    size_t operator()(const std::string& __s) const {return __stl_hash_string (__s.c_str ()); }
+  };
+};
+
+#endif
+
+#endif
