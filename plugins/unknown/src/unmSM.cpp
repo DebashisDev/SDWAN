@@ -91,7 +91,6 @@ void unmSM::processQueue_sm(bool &smBusy, uint32_t &smCnt, std::unordered_map<ui
 	}
 }
 
-
 void unmSM::processPacket(MPacket *pkt)
 {
 	if(pkt == NULL)

@@ -13,7 +13,6 @@
 #include <sys/time.h>
 #include "SpectaTypedef.h"
 #include "BWData.h"
-#include "CDNData.h"
 #include "EthernetParser.h"
 
 #include "BaseConfig.h"
@@ -48,13 +47,11 @@ class PacketRouter : public BaseConfig
 
 		MPacket*			msgObj;
 		BWData*				bwData;
-		CDNData*			cdnData;
 		EthernetParser*		ethParser;
 
 		bool	IsIPInRange(uint32_t ip, uint32_t network, uint32_t mask);
 		void 	processQueue(uint16_t t_index);
 		void 	processQueueDecode(bool &pktRepository_busy, uint32_t &pktRepository_cnt, std::unordered_map<uint32_t, RawPkt*> &pktRepository);
-		void 	checkCDN();
 
 		void 	decodePacket(RawPkt *rawPkt);
 

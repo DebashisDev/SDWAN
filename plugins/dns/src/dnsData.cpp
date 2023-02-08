@@ -41,19 +41,19 @@ void dnsData::getUrl(std::string& url, uint32_t ip)
 	url = lookUp(ip, DNSGlobal::dnsLookUpMap[idx]);
 }
 
-void dnsData::updateV6Url(string resolvedip, string url)
-{ DNSGlobal::dnsV6LookUpMap[string(resolvedip)] = std::string(url); }
-
-void dnsData::getDNSV6UrlForIP(std::string& url, char *ip)
-{
-	std::map<std::string, std::string>::iterator itSp1 = DNSGlobal::dnsV6LookUpMap.find(std::string(ip));
-
-	if( itSp1 != DNSGlobal::dnsV6LookUpMap.end())
-	{
-		url = itSp1->second;
-		return;
-	}
-}
+//void dnsData::updateV6Url(string resolvedip, string url)
+//{ DNSGlobal::dnsV6LookUpMap[string(resolvedip)] = std::string(url); }
+//
+//void dnsData::getDNSV6UrlForIP(std::string& url, char *ip)
+//{
+//	std::map<std::string, std::string>::iterator itSp1 = DNSGlobal::dnsV6LookUpMap.find(std::string(ip));
+//
+//	if( itSp1 != DNSGlobal::dnsV6LookUpMap.end())
+//	{
+//		url = itSp1->second;
+//		return;
+//	}
+//}
 
 string dnsData::getDNSKey(uint32_t destAddrLong, uint32_t sourceAddrLong)
 {

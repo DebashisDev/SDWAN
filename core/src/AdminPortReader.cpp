@@ -103,20 +103,11 @@ void AdminPortReader::refreshConfig()
 		Key.clear();
 		fp >> Key;
 
-		pGConfig->get_solarTimeStamp(Key);						/* SOLARFLARE_HW_TIMESTAMP */
-		pGConfig->get_ProcessCDN(Key);
-		pGConfig->get_CdnIPRangeV4(Key);
-		pGConfig->get_CdnIPRangeV6(Key);
-		pGConfig->get_ipv6ProcessingFlag(Key);
-		pGConfig->get_vpsPacketPerSec(Key);
 		pGConfig->get_udpXdrForDns(Key);
 		pGConfig->get_DnsAnswerCount(Key);
 		pGConfig->get_IPV4Range(Key);
-		pGConfig->get_ipv6Range(Key);
 		pGConfig->get_maxTcpSize(Key);
 		pGConfig->get_ProcessOutOfRange(Key);
-		pGConfig->get_userAgentFlag(Key);
-		pGConfig->get_checkDuplicateFlag(Key);
 		pGConfig->get_processAckFlag(Key);
 		pGConfig->get_ackCrateFlag(Key);
 		pGConfig->get_printStats(Key);

@@ -277,11 +277,14 @@ void flusherUtility::buildDnsXdr(dnsSession *pDnsSession, char *csvXDR)
 						break;
 	}
 
-	if(strlen(pDnsSession->URL) == 0)
+	if(!strlen(pDnsSession->URL))
 		strcpy(pDnsSession->URL, "NA");
 
 	if(strstr(pDnsSession->errorDesc, "No Error") != NULL)
 		pDnsSession->errorCode = 0;
+
+	if(!strlen(pDnsSession->resolvedIp))
+		strcpy(pDnsSession->resolvedIp, "NULL");
 
 	sprintf(csvXDR, "%d,%d,17,DNS,"			// 1- Probe Id			2- XDR Id		3- UDP				4-  DNS
 					"%s,%s,%d,%s,%d,"		// 5- User Id			6- Source Ip	7- Source Port		8-  Dest Ip		9- Dest Port

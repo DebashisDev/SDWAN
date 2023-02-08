@@ -190,34 +190,34 @@ void ProbeUtility::ExtractIP4Address(const BYTE packet, char *ipBuffer, uint32_t
 	sprintf((char *)ipBuffer,"%d.%d.%d.%d",(address & 0xFF000000) >> 24,(address & 0x00FF0000) >> 16,(address & 0x0000FF00) >> 8, address & 0x000000FF);
 }
 
-void ProbeUtility::ExtractIP6Address(const BYTE packet, char *ipBuffer, uint32_t loc)
-{
-	unsigned char buf[sizeof(struct in6_addr)];
-	int domain = AF_INET6, ret;
-
-	ipBuffer[0] = 0;
-	ret = 0;
-
-	sprintf(ipBuffer,"%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x", packet[loc], packet[loc+1], \
-			packet[loc+2], packet[loc+3], packet[loc+4], packet[loc+5], packet[loc+6], packet[loc+7], packet[loc+8], packet[loc+9], \
-			packet[loc+10], packet[loc+11], packet[loc+12], packet[loc+13], packet[loc+14], packet[loc+15], packet[loc+16]);
-
-	ret = inet_pton(domain, ipBuffer, buf);
-	if (ret <= 0)
-	{
-		if (ret == 0) {
-			fprintf(stderr, "Not in presentation format");
-			ipBuffer[0] = 0;
-		}
-		else
-			perror("inet_pton");
-	}
-
-	if (inet_ntop(domain, buf, ipBuffer, INET6_ADDRSTRLEN) == NULL) {
-				   perror("inet_ntop");
-				   ipBuffer[0] = 0;
-	}
-}
+//void ProbeUtility::ExtractIP6Address(const BYTE packet, char *ipBuffer, uint32_t loc)
+//{
+//	unsigned char buf[sizeof(struct in6_addr)];
+//	int domain = AF_INET6, ret;
+//
+//	ipBuffer[0] = 0;
+//	ret = 0;
+//
+//	sprintf(ipBuffer,"%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x", packet[loc], packet[loc+1], \
+//			packet[loc+2], packet[loc+3], packet[loc+4], packet[loc+5], packet[loc+6], packet[loc+7], packet[loc+8], packet[loc+9], \
+//			packet[loc+10], packet[loc+11], packet[loc+12], packet[loc+13], packet[loc+14], packet[loc+15], packet[loc+16]);
+//
+//	ret = inet_pton(domain, ipBuffer, buf);
+//	if (ret <= 0)
+//	{
+//		if (ret == 0) {
+//			fprintf(stderr, "Not in presentation format");
+//			ipBuffer[0] = 0;
+//		}
+//		else
+//			perror("inet_pton");
+//	}
+//
+//	if (inet_ntop(domain, buf, ipBuffer, INET6_ADDRSTRLEN) == NULL) {
+//				   perror("inet_ntop");
+//				   ipBuffer[0] = 0;
+//	}
+//}
 
 
 void ProbeUtility::ExtractIP6Prefix(const BYTE packet, char *ipBuffer, uint32_t start, uint32_t end)
@@ -433,9 +433,11 @@ void ProbeUtility::dnsDumpIpv4Data(string dir)
 	}
 }
 
-void ProbeUtility::loadResolvedIpv4()
+void ProbeUtility::loadResolvedIpv4(string dir)
 {
-	string filePath = "/data/SpectaProbe/dnsIpv4data.csv";
+	char fileName[50];
+	sprintf(fileName, "%s.csv", "dnsIpv4data");
+	string filePath = dir + string(fileName);
 
 	std::string line;
 	std::string url;

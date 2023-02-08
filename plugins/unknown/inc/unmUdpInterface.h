@@ -15,13 +15,6 @@
 #include "smGlobal.h"
 #include "BaseConfig.h"
 
-#define DNS_FLUSH_REQ_RSP		30
-#define DNS_FLUSH_RSP_REQ		31
-#define DNS_FLUSH_CLEANUP_REQ_RSP	32
-#define DNS_FLUSH_CLEANUP_REQ_NORSP	33
-#define DNS_FLUSH_CLEANUP_RSP_NOREQ	34
-
-
 class unmUdpInterface: BaseConfig
 {
 	private:

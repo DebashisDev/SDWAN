@@ -38,9 +38,6 @@ void ProbeStatsLog::run()
 
 	interfaceCounter = nicCounter;
 
-	for(solCounter = 0; solCounter < Global::NO_OF_SOLAR_INTERFACE; solCounter++, interfaceCounter++)
-		INTERFACES_NAME[interfaceCounter] = Global::SOLAR_INTERFACES[solCounter];
-
 	while(Global::PROBE_STATS_RUNNING_STATUS)
 	{
 		  sleep(1);

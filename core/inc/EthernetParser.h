@@ -69,7 +69,6 @@ class EthernetParser : public BaseConfig
 		void		fn_decodeMPLS(const BYTE packet, MPacket *msgObj);
 
 		void		abstractIpv4Address(const BYTE packet, MPacket *msgObj);
-		void		abstractIpv6Address(const BYTE packet, MPacket *msgObj);
 
 	public:
 		EthernetParser(uint16_t intfid, uint16_t rId);

@@ -72,17 +72,17 @@ using namespace std;
 
 #define BW_XDR_ID 							11
 
-#define TCP_SESSION_POOL_ARRAY_ELEMENTS		10
-#define TCP_SESSION_POOL_ARRAY_SIZE			300
+#define TCP_SESSION_POOL_ARRAY_ELEMENTS		100
+#define TCP_SESSION_POOL_ARRAY_SIZE			1500
 
-#define UDP_SESSION_POOL_ARRAY_ELEMENTS		10
-#define UDP_SESSION_POOL_ARRAY_SIZE			300
+#define UDP_SESSION_POOL_ARRAY_ELEMENTS		100
+#define UDP_SESSION_POOL_ARRAY_SIZE			1500
 
-#define DNS_SESSION_POOL_ARRAY_ELEMENTS		10
-#define DNS_SESSION_POOL_ARRAY_SIZE			200
+#define DNS_SESSION_POOL_ARRAY_ELEMENTS		100
+#define DNS_SESSION_POOL_ARRAY_SIZE			1500
 
-#define UNM_SESSION_POOL_ARRAY_ELEMENTS		10
-#define UNM_SESSION_POOL_ARRAY_SIZE			100
+#define UNM_SESSION_POOL_ARRAY_ELEMENTS		100
+#define UNM_SESSION_POOL_ARRAY_SIZE			1000
 
 #define PACKET_NO							200000
 
@@ -476,9 +476,6 @@ namespace Global
 	/* IP Range Parameters */
 	extern uint16_t			IPV4_NO_OF_RANGE;
 	extern uint32_t			IPV4_RANGE[MAX_RANGE_IP][2];
-	extern uint32_t			CDN_IPV4_RANGE[MAX_RANGE_IP][2];
-	extern vector<string> 	IPV6Range;
-	extern vector<string> 	CDN_IPV6_RANGE;
 
 	/* Log Status */
 	extern bool 		PRINT_STATS;
@@ -492,15 +489,12 @@ namespace Global
 	extern bool			PKT_LISTENER_RUNNING_STATUS[MAX_INTERFACE_SUPPORT];
 	extern bool			PKT_LISTENER_INTF_MON_RUNNING_STATUS[MAX_INTERFACE_SUPPORT];
 	extern uint16_t		NO_OF_NIC_INTERFACE;
-	extern uint16_t		NO_OF_SOLAR_INTERFACE;
 	extern uint16_t 	NO_OF_INTERFACES;
 	extern uint16_t		PKT_LISTENER_CPU_CORE[MAX_INTERFACE_SUPPORT];
-	extern uint16_t		SOLARFLARE_HW_TIMESTAMP;
 	extern uint16_t		PPS_CAP_PERCENTAGE[MAX_INTERFACE_SUPPORT];
 	extern uint16_t		MAX_PKT_LEN_PER_INTERFACE[MAX_INTERFACE_SUPPORT];
 	extern uint32_t 	PPS_PER_INTERFACE[MAX_INTERFACE_SUPPORT];
 	extern	string 		ETHERNET_INTERFACES[MAX_INTERFACE_SUPPORT];
-	extern	string 		SOLAR_INTERFACES[MAX_INTERFACE_SUPPORT];
 	extern	string		PNAME[MAX_INTERFACE_SUPPORT];
 
 	/* Router Parameters */
@@ -519,14 +513,11 @@ namespace Global
 
 	/* Probe Parameters */
 	extern bool			PROBE_RUNNING_STATUS;
-	extern bool 		PROCESS_CDN;
 	extern bool			PROCESS_OUT_OF_RANGE_IP;
 	extern bool			PACKET_PROCESSING[MAX_INTERFACE_SUPPORT];
-	extern bool			IPV6_PROCESSING;
 	extern bool			ADMIN_FLAG;
 	extern uint16_t		DNS_DUMP_HOUR;
 	extern uint16_t		TIME_INDEX;
-	extern uint16_t		NO_OF_IPV4_CDN;
 	extern uint16_t		SLEEP_TIME;
     extern uint64_t 	DISCARDED_PACKETS[MAX_INTERFACE_SUPPORT];
 	extern string		ADMIN_PORT;

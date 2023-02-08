@@ -126,9 +126,6 @@ namespace Global
 	/* IP Range Parameters */
 	uint16_t	IPV4_NO_OF_RANGE = 0;
 	uint32_t	IPV4_RANGE[MAX_RANGE_IP][2]	= {{0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}};
-	uint32_t	CDN_IPV4_RANGE[MAX_RANGE_IP][2] = {{0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}};
-    vector<string> IPV6Range;
-	vector<string> CDN_IPV6_RANGE;
 
 	/* Log Status */
 	bool 		PRINT_STATS = false;
@@ -142,15 +139,12 @@ namespace Global
 	bool		PKT_LISTENER_RUNNING_STATUS[MAX_INTERFACE_SUPPORT];
 	bool		PKT_LISTENER_INTF_MON_RUNNING_STATUS[MAX_INTERFACE_SUPPORT];
 	uint16_t	NO_OF_NIC_INTERFACE = 0;
-	uint16_t	NO_OF_SOLAR_INTERFACE = 0;
 	uint16_t 	NO_OF_INTERFACES = 0;
 	uint16_t	PKT_LISTENER_CPU_CORE[MAX_INTERFACE_SUPPORT] = {0};
-	uint16_t	SOLARFLARE_HW_TIMESTAMP = 0;
 	uint16_t	PPS_CAP_PERCENTAGE[MAX_INTERFACE_SUPPORT]	= {50,50,50,50,50,50,50,50};
 	uint16_t	MAX_PKT_LEN_PER_INTERFACE[MAX_INTERFACE_SUPPORT] = {0};
 	uint32_t 	PPS_PER_INTERFACE[MAX_INTERFACE_SUPPORT] 	= {500000,500000,500000,500000,500000,500000,500000,500000};
 	string 		ETHERNET_INTERFACES[MAX_INTERFACE_SUPPORT] 		= {""};
-	string 		SOLAR_INTERFACES[MAX_INTERFACE_SUPPORT] 		= {""};
 	string 		PNAME[MAX_INTERFACE_SUPPORT] = {""};
 
 	/* Router Parameters */
@@ -169,14 +163,11 @@ namespace Global
 
 	/* Probe Parameters */
 	bool		PROBE_RUNNING_STATUS 						= false;
-	bool 		PROCESS_CDN									= false;
 	bool		PROCESS_OUT_OF_RANGE_IP						= false;
 	bool		PACKET_PROCESSING[MAX_INTERFACE_SUPPORT] 	= {false, false, false, false, false, false, false, false};
-	bool		IPV6_PROCESSING 							= false;
 	bool		ADMIN_FLAG 									= false;
 	uint16_t	DNS_DUMP_HOUR 								= 4;
 	uint16_t	TIME_INDEX 									= 10;
-	uint16_t	NO_OF_IPV4_CDN								= 0;
 	uint16_t	SLEEP_TIME									= 25000;
 	uint64_t 	DISCARDED_PACKETS[MAX_INTERFACE_SUPPORT]	= {0};
 	string		ADMIN_PORT;
@@ -223,7 +214,7 @@ namespace Global
 	uint16_t	UDP_FLUSHER_CPU_CORE[UDP_MAX_FLUSHER_SUPPORT] 	= {0};
 	uint16_t	UNM_FLUSHER_CPU_CORE[UNM_MAX_FLUSHER_SUPPORT] 	= {0};
 
-	uint16_t	DNS_ANSWER									= 3;
+	uint16_t	DNS_ANSWER									= 5;
 	uint16_t	VPS_PACKET_PER_SEC							= 1000;
 	uint16_t 	SESSION_TIME_LIMIT 						= 900;
 	uint16_t 	SESSION_PKT_LIMIT 						= 0;

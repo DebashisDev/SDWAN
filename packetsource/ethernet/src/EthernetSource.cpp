@@ -193,19 +193,17 @@ void EthernetSource::packetReaderCallback(u_char *args, const struct pcap_pkthdr
 
 	switch(protocol)
 	{
-	case ETH_IP:			/* Internet Protocol packet	*/
-	case ETH_8021Q:			/* 802.1Q VLAN Extended Header  */
-	case ETH_MPLS_UC:		/* MPLS */
-					break;
-	case ETH_IPV6:			/* IPv6 over bluebook		*/
-					if(!Global::IPV6_PROCESSING)	/* Ipv6 Processing Flag */
-						return;
-					else
+		case ETH_IP:				/* Internet Protocol packet	*/
+		case ETH_8021Q:				/* 802.1Q VLAN Extended Header  */
+		case ETH_MPLS_UC:			/* MPLS */
 						break;
-	default:
-					countDiscardedPkt();
-					return;
-					break;
+		case ETH_IPV6:				/* IPv6 over bluebook		*/
+						return;
+						break;
+		default:
+						countDiscardedPkt();
+						return;
+						break;
 	}
 
 	len = header->len;

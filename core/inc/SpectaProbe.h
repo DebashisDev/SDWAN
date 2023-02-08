@@ -53,8 +53,6 @@ class SpectaProbe : public BaseConfig
 
 		void 	pinThread(pthread_t th, uint16_t i);
 
-		uint16_t caseNo, nicCounter, solCounter, interfaceCounter;
-
 		glbTimer*			pGlbTimer;
 		pthread_t			glbTimerThrId;
 
@@ -111,7 +109,6 @@ class SpectaProbe : public BaseConfig
 		void	commonInit();
 
 		fstream			BwXdrHandler;
-		fstream			CDNXdrHandler;
 
 		char 	bwXdr[XDR_MAX_LEN];
 		char	cachedXdr[XDR_MAX_LEN];
@@ -122,9 +119,6 @@ class SpectaProbe : public BaseConfig
 		void	writeBwXdr(char *buffer);
 		void	closeBwCsvXdrFile();
 
-		void	openCDNCsvXdrFile(uint16_t &currentMin, uint16_t &currentHour, uint16_t &currentDay, uint16_t &currentMonth, uint16_t &currentYear);
-		void 	writeCDNXdr(char *bufferBW, char *bufferCDN, char *bufferUNC);
-		void	closeCDNCsvXdrFile();
 
 
 

@@ -167,7 +167,7 @@ void SpectaProbe::start()
 	uint16_t infid, totalNoRouter, startRouterId;
 
 	infid = totalNoRouter = startRouterId = 0;
-	Global::NO_OF_INTERFACES = Global::NO_OF_SOLAR_INTERFACE + Global::NO_OF_NIC_INTERFACE;
+	Global::NO_OF_INTERFACES = Global::NO_OF_NIC_INTERFACE;
 
 	initializePacketRepo();
 	initialize_sm_maps();
@@ -219,7 +219,7 @@ void SpectaProbe::start()
 
 	createProbeStats();					/* Create a Thread to create probe Status */
 
-	pUtility->loadResolvedIpv4();
+	pUtility->loadResolvedIpv4(Global::DATA_DIR);
 
 	sleep(15); /* Start Processing the data after 30 seconds */
 
@@ -242,29 +242,12 @@ void SpectaProbe::start()
 
 		if(currentMin != prevMin)
 		{
-//			/* Bandwidth Processing */
-//
-//			buildBwCSV(Global::CURRENT_EPOCH_MILI_SEC);
-//
-//			if(Global::PROCESS_CDN)
-//			{
-//				openCDNCsvXdrFile(Global::CURRENT_MIN, Global::CURRENT_HOUR, Global::CURRENT_DAY, Global::CURRENT_MONTH, Global::CURRENT_YEAR);
-//				writeCDNXdr(bwXdr, cachedXdr, unCachedXdr);
-//				closeCDNCsvXdrFile();
-//			}
-//			else
-//			{
-//				openBwCsvXdrFile(Global::CURRENT_MIN, Global::CURRENT_HOUR, Global::CURRENT_DAY, Global::CURRENT_MONTH, Global::CURRENT_YEAR);
-//				writeBwXdr(bwXdr);
-//				closeBwCsvXdrFile();
-//			}
-
 			dnsDumpLoop ++;
 
-			if(dnsDumpLoop >= 15)
+			if(dnsDumpLoop >= 2)
 			{
 				dnsDumpLoop = 0;
-				pUtility->dnsDumpIpv4Data("/data/SpectaProbe/");
+				pUtility->dnsDumpIpv4Data(Global::DATA_DIR);
 			}
 
 			prevMin = currentMin;
@@ -503,37 +486,20 @@ void SpectaProbe::createRoutersPerInterface()
 
 void SpectaProbe::initializeNICs()
 {
-	nicCounter = solCounter = interfaceCounter = 0;
-	caseNo = -1;
-
-	if(Global::NO_OF_NIC_INTERFACE > 0 && Global::NO_OF_SOLAR_INTERFACE > 0)
-		caseNo = 0; /* Both NIC and Solarflare */
-	else if(Global::NO_OF_NIC_INTERFACE > 0 && Global::NO_OF_SOLAR_INTERFACE == 0)
-		caseNo = 1; /* Only NIC */
-	else if(Global::NO_OF_NIC_INTERFACE == 0 && Global::NO_OF_SOLAR_INTERFACE > 0)
-		caseNo = 2; /* Only Solarflare */
-
-	switch(caseNo)
+	for(int infCounter = 0; infCounter < Global::NO_OF_INTERFACES; infCounter++)
 	{
-		case 1:		/* Only NIC */
-		{
-			for(int infCounter = 0; infCounter < Global::NO_OF_INTERFACES; infCounter++)
-			{
-				printf("Started NIC   Listener for Interface [%d]->[%s] with No of Routers [%02d] Pinned to CPU Core [%02d] \n",
-						infCounter, Global::ETHERNET_INTERFACES[infCounter].c_str(), Global::ROUTER_PER_INTERFACE[infCounter], Global::PKT_LISTENER_CPU_CORE[infCounter]);
+		printf("Started NIC   Listener for Interface [%d]->[%s] with No of Routers [%02d] Pinned to CPU Core [%02d] \n",
+				infCounter, Global::ETHERNET_INTERFACES[infCounter].c_str(), Global::ROUTER_PER_INTERFACE[infCounter], Global::PKT_LISTENER_CPU_CORE[infCounter]);
 
-				Global::PNAME[infCounter] = Global::ETHERNET_INTERFACES[infCounter];
+		Global::PNAME[infCounter] = Global::ETHERNET_INTERFACES[infCounter];
 
-				Global::PKT_LISTENER_RUNNING_STATUS[infCounter] = true;
-				ethReader[infCounter] = new EthernetSource(Global::ROUTER_PER_INTERFACE[infCounter], infCounter);
-				pthread_create(&pktLisThread[infCounter], NULL, ethListenerThread, ethReader[infCounter]);
-				pinThread(pktLisThread[infCounter], Global::PKT_LISTENER_CPU_CORE[infCounter]);
+		Global::PKT_LISTENER_RUNNING_STATUS[infCounter] = true;
+		ethReader[infCounter] = new EthernetSource(Global::ROUTER_PER_INTERFACE[infCounter], infCounter);
+		pthread_create(&pktLisThread[infCounter], NULL, ethListenerThread, ethReader[infCounter]);
+		pinThread(pktLisThread[infCounter], Global::PKT_LISTENER_CPU_CORE[infCounter]);
 
-				while(!ethReader[infCounter]->isRepositoryInitialized())
-					sleep(1);
-			}
-		}
-		break;
+		while(!ethReader[infCounter]->isRepositoryInitialized())
+			sleep(1);
 	}
 }
 
@@ -691,104 +657,7 @@ void SpectaProbe::buildBwCSV(uint64_t timems)
 			bw_i[6].peakTotalVol*8, bw_i[6].peakUpTotalVol*8, bw_i[6].peakDnTotalVol*8,bw_i[6].totalVol, bw_i[6].upTotalVol, bw_i[6].dnTotalVol, bw_i[6].avgTotalBw, bw_i[6].avgUpBw, bw_i[6].avgDnBw,
 			bw_i[7].peakTotalVol*8, bw_i[7].peakUpTotalVol*8, bw_i[7].peakDnTotalVol*8,bw_i[7].totalVol, bw_i[7].upTotalVol, bw_i[7].dnTotalVol, bw_i[7].avgTotalBw, bw_i[7].avgUpBw, bw_i[7].avgDnBw);
 
-
-	if(Global::PROCESS_CDN)
-	{
-		cachedXdr[0] = 0;
-		unCachedXdr[0] = 0;
-
-		cdnData cdn_i[MAX_INTERFACE_SUPPORT];
-
-		for(uint16_t intf = 0; intf < Global::NO_OF_INTERFACES; intf++)
-			for(uint16_t router = 0; router < Global::ROUTER_PER_INTERFACE[intf]; router++)
-			{
-				cdn_i[intf].peakTotalVol += Global::CDN_MBPS_i_r[intf][router].peakTotalVol;
-				cdn_i[intf].peakUpTotalVol += Global::CDN_MBPS_i_r[intf][router].peakUpTotalVol;
-				cdn_i[intf].peakDnTotalVol += Global::CDN_MBPS_i_r[intf][router].peakDnTotalVol;
-				cdn_i[intf].totalVol += Global::CDN_MBPS_i_r[intf][router].totalVol;
-				cdn_i[intf].upTotalVol += Global::CDN_MBPS_i_r[intf][router].upTotalVol;
-				cdn_i[intf].dnTotalVol += Global::CDN_MBPS_i_r[intf][router].dnTotalVol;
-				cdn_i[intf].avgTotalBw += Global::CDN_MBPS_i_r[intf][router].avgTotalBw;
-				cdn_i[intf].avgUpBw += Global::CDN_MBPS_i_r[intf][router].avgUpBw;
-				cdn_i[intf].avgDnBw += Global::CDN_MBPS_i_r[intf][router].avgDnBw;
-			}
-
-		sprintf(cachedXdr, "%d,%d,"
-						"%lu,"
-						"%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,"
-						"%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,"
-						"%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,"
-						"%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,"
-						"%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,"
-						"%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,"
-						"%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,"
-						"%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu",
-				Global::PROBE_ID, IP_XDR_ID + 1,
-				timems,
-				cdn_i[0].peakTotalVol*8, cdn_i[0].peakUpTotalVol*8, cdn_i[0].peakDnTotalVol*8, cdn_i[0].totalVol, cdn_i[0].upTotalVol, cdn_i[0].dnTotalVol, cdn_i[0].avgTotalBw, cdn_i[0].avgUpBw, cdn_i[0].avgDnBw,
-				cdn_i[1].peakTotalVol*8, cdn_i[1].peakUpTotalVol*8, cdn_i[1].peakDnTotalVol*8, cdn_i[1].totalVol, cdn_i[1].upTotalVol, cdn_i[1].dnTotalVol, cdn_i[1].avgTotalBw, cdn_i[1].avgUpBw, cdn_i[1].avgDnBw,
-				cdn_i[2].peakTotalVol*8, cdn_i[2].peakUpTotalVol*8, cdn_i[2].peakDnTotalVol*8,cdn_i[2].totalVol, cdn_i[2].upTotalVol, cdn_i[2].dnTotalVol, cdn_i[2].avgTotalBw, cdn_i[2].avgUpBw, cdn_i[2].avgDnBw,
-				cdn_i[3].peakTotalVol*8, cdn_i[3].peakUpTotalVol*8, cdn_i[3].peakDnTotalVol*8,cdn_i[3].totalVol, cdn_i[3].upTotalVol, cdn_i[3].dnTotalVol, cdn_i[3].avgTotalBw, cdn_i[3].avgUpBw, cdn_i[3].avgDnBw,
-				cdn_i[4].peakTotalVol*8, cdn_i[4].peakUpTotalVol*8, cdn_i[4].peakDnTotalVol*8,cdn_i[4].totalVol, cdn_i[4].upTotalVol, cdn_i[4].dnTotalVol, cdn_i[4].avgTotalBw, cdn_i[4].avgUpBw, cdn_i[4].avgDnBw,
-				cdn_i[5].peakTotalVol*8, cdn_i[5].peakUpTotalVol*8, cdn_i[5].peakDnTotalVol*8,cdn_i[5].totalVol, cdn_i[5].upTotalVol, cdn_i[5].dnTotalVol, cdn_i[5].avgTotalBw, cdn_i[5].avgUpBw, cdn_i[5].avgDnBw,
-				cdn_i[6].peakTotalVol*8, cdn_i[6].peakUpTotalVol*8, cdn_i[6].peakDnTotalVol*8,cdn_i[6].totalVol, cdn_i[6].upTotalVol, cdn_i[6].dnTotalVol, cdn_i[6].avgTotalBw, cdn_i[6].avgUpBw, cdn_i[6].avgDnBw,
-				cdn_i[7].peakTotalVol*8, cdn_i[7].peakUpTotalVol*8, cdn_i[7].peakDnTotalVol*8,cdn_i[7].totalVol, cdn_i[7].upTotalVol, cdn_i[7].dnTotalVol, cdn_i[7].avgTotalBw, cdn_i[7].avgUpBw, cdn_i[7].avgDnBw);
-
-		sprintf(unCachedXdr, "%d,%d,"
-						"%lu,"
-						"%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,"
-						"%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,"
-						"%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,"
-						"%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,"
-						"%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,"
-						"%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,"
-						"%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,"
-						"%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu",
-				Global::PROBE_ID, IP_XDR_ID + 2,
-				timems,
-				(bw_i[0].peakTotalVol - cdn_i[0].peakTotalVol)*8, (bw_i[0].peakUpTotalVol - cdn_i[0].peakUpTotalVol)*8, (bw_i[0].peakDnTotalVol - cdn_i[0].peakDnTotalVol)*8, (bw_i[0].totalVol - cdn_i[0].totalVol), (bw_i[0].upTotalVol - cdn_i[0].upTotalVol), (bw_i[0].dnTotalVol - cdn_i[0].dnTotalVol), (bw_i[0].avgTotalBw - cdn_i[0].avgTotalBw), (bw_i[0].avgUpBw - cdn_i[0].avgUpBw), (bw_i[0].avgDnBw - cdn_i[0].avgDnBw),
-				(bw_i[1].peakTotalVol - cdn_i[1].peakTotalVol)*8, (bw_i[1].peakUpTotalVol - cdn_i[1].peakUpTotalVol)*8, (bw_i[1].peakDnTotalVol - cdn_i[1].peakDnTotalVol)*8, (bw_i[1].totalVol - cdn_i[1].totalVol), (bw_i[1].upTotalVol - cdn_i[1].upTotalVol), (bw_i[1].dnTotalVol - cdn_i[1].dnTotalVol), (bw_i[1].avgTotalBw - cdn_i[1].avgTotalBw), (bw_i[1].avgUpBw - cdn_i[1].avgUpBw), (bw_i[1].avgDnBw - cdn_i[1].avgDnBw),
-				(bw_i[2].peakTotalVol - cdn_i[2].peakTotalVol)*8, (bw_i[2].peakUpTotalVol - cdn_i[2].peakUpTotalVol)*8, (bw_i[2].peakDnTotalVol - cdn_i[2].peakDnTotalVol)*8, (bw_i[2].totalVol - cdn_i[2].totalVol), (bw_i[2].upTotalVol - cdn_i[2].upTotalVol), (bw_i[2].dnTotalVol - cdn_i[2].dnTotalVol), (bw_i[2].avgTotalBw - cdn_i[2].avgTotalBw), (bw_i[2].avgUpBw - cdn_i[2].avgUpBw), (bw_i[2].avgDnBw - cdn_i[2].avgDnBw),
-				(bw_i[3].peakTotalVol - cdn_i[3].peakTotalVol)*8, (bw_i[3].peakUpTotalVol - cdn_i[3].peakUpTotalVol)*8, (bw_i[3].peakDnTotalVol - cdn_i[3].peakDnTotalVol)*8, (bw_i[3].totalVol - cdn_i[3].totalVol), (bw_i[3].upTotalVol - cdn_i[3].upTotalVol), (bw_i[3].dnTotalVol - cdn_i[3].dnTotalVol), (bw_i[3].avgTotalBw - cdn_i[3].avgTotalBw), (bw_i[3].avgUpBw - cdn_i[3].avgUpBw), (bw_i[3].avgDnBw - cdn_i[3].avgDnBw),
-				(bw_i[4].peakTotalVol - cdn_i[4].peakTotalVol)*8, (bw_i[4].peakUpTotalVol - cdn_i[4].peakUpTotalVol)*8, (bw_i[4].peakDnTotalVol - cdn_i[4].peakDnTotalVol)*8, (bw_i[4].totalVol - cdn_i[4].totalVol), (bw_i[4].upTotalVol - cdn_i[4].upTotalVol), (bw_i[4].dnTotalVol - cdn_i[4].dnTotalVol), (bw_i[4].avgTotalBw - cdn_i[4].avgTotalBw), (bw_i[4].avgUpBw - cdn_i[4].avgUpBw), (bw_i[4].avgDnBw - cdn_i[4].avgDnBw),
-				(bw_i[5].peakTotalVol - cdn_i[5].peakTotalVol)*8, (bw_i[5].peakUpTotalVol - cdn_i[5].peakUpTotalVol)*8, (bw_i[5].peakDnTotalVol - cdn_i[5].peakDnTotalVol)*8, (bw_i[5].totalVol - cdn_i[5].totalVol), (bw_i[5].upTotalVol - cdn_i[5].upTotalVol), (bw_i[5].dnTotalVol - cdn_i[5].dnTotalVol), (bw_i[5].avgTotalBw - cdn_i[5].avgTotalBw), (bw_i[5].avgUpBw - cdn_i[5].avgUpBw), (bw_i[5].avgDnBw - cdn_i[5].avgDnBw),
-				(bw_i[6].peakTotalVol - cdn_i[6].peakTotalVol)*8, (bw_i[6].peakUpTotalVol - cdn_i[6].peakUpTotalVol)*8, (bw_i[6].peakDnTotalVol - cdn_i[6].peakDnTotalVol)*8, (bw_i[6].totalVol - cdn_i[6].totalVol), (bw_i[6].upTotalVol - cdn_i[6].upTotalVol), (bw_i[6].dnTotalVol - cdn_i[6].dnTotalVol), (bw_i[6].avgTotalBw - cdn_i[6].avgTotalBw), (bw_i[6].avgUpBw - cdn_i[6].avgUpBw), (bw_i[6].avgDnBw - cdn_i[6].avgDnBw),
-				(bw_i[7].peakTotalVol - cdn_i[7].peakTotalVol)*8, (bw_i[7].peakUpTotalVol - cdn_i[7].peakUpTotalVol)*8, (bw_i[7].peakDnTotalVol - cdn_i[7].peakDnTotalVol)*8, (bw_i[7].totalVol - cdn_i[7].totalVol), (bw_i[7].upTotalVol - cdn_i[7].upTotalVol), (bw_i[7].dnTotalVol - cdn_i[7].dnTotalVol), (bw_i[7].avgTotalBw - cdn_i[7].avgTotalBw), (bw_i[7].avgUpBw - cdn_i[7].avgUpBw), (bw_i[7].avgDnBw - cdn_i[7].avgDnBw));
-	}
 }
-
-void SpectaProbe::openCDNCsvXdrFile(uint16_t &currentMin, uint16_t &currentHour, uint16_t &currentDay, uint16_t &currentMonth, uint16_t &currentYear)
-{
-	char filePath[300];
-	filePath[0] = 0;
-
-	sprintf(filePath, "%s%s/%s_%d-%02d-%02d-%02d-%02d.csv",
-					Global::XDR_DIR.c_str(),
-					"cdn",
-					"cdn",
-					currentYear,
-					currentMonth,
-					currentDay,
-					currentHour,
-					currentMin);
-	CDNXdrHandler.open((char *)filePath, ios :: out | ios :: app);
-
-	filePath[0] = 0;
-}
-
-void SpectaProbe::writeCDNXdr(char *bufferBw, char *bufferCdn, char *bufferUnc)
-{
-	TheLog_nc_v1(Log::Info, name(),"    Writing          BW  [%s]", bufferBw);
-	TheLog_nc_v1(Log::Info, name(),"    Writing Cached   BW  [%s]", bufferCdn);
-	TheLog_nc_v1(Log::Info, name(),"    Writing unCached BW  [%s]", bufferUnc);
-
-	CDNXdrHandler << bufferBw << std::endl;
-	CDNXdrHandler << bufferCdn << std::endl;
-	CDNXdrHandler << bufferUnc << std::endl;
-}
-
-void SpectaProbe::closeCDNCsvXdrFile()
-{ CDNXdrHandler.close(); }
 
 void SpectaProbe::openBwCsvXdrFile(uint16_t &currentMin, uint16_t &currentHour, uint16_t &currentDay, uint16_t &currentMonth, uint16_t &currentYear)
 {

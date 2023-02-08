@@ -173,19 +173,11 @@ typedef struct _dnsSession
 
 typedef struct _tcpSession
 {
-	bool		synRcv;
-	bool		synAckRcv;
-	bool		ackRcv;
-	bool		dataRcv;
-	bool		finRcv;
-	bool		firstDataFlag;
-
 	uint8_t		ipVer;
     uint8_t		isUpDir;
 	uint8_t		causeCode;
 	uint8_t		protocolType;
 
-	uint16_t 	state;
     uint16_t 	sPort;
     uint16_t 	dPort;
     uint16_t 	pLoadPkt;
@@ -225,19 +217,11 @@ typedef struct _tcpSession
 
 	void reset()
 	{
-	    this->synRcv		= false;
-	    this->synAckRcv		= false;
-	    this->ackRcv		= false;
-	    this->dataRcv		= false;
-	    this->finRcv		= false;
-	    this->firstDataFlag = false;
-
 	    this->ipVer 		= 0;
 	    this->isUpDir		= 0;
 	    this->causeCode 	= 0;
 	    this->protocolType 	= 0;
 
-	    this->state 		= 0;
 	    this->sPort 		= 0;
 	    this->dPort 		= 0;
 	    this->pLoadPkt 		= 0;
@@ -301,19 +285,11 @@ typedef struct _tcpSession
 
 	_tcpSession(const _tcpSession& obj)
 	{
-	    this->synRcv		= obj.synRcv;
-	    this->synAckRcv		= obj.synAckRcv;
-	    this->ackRcv		= obj.ackRcv;
-	    this->dataRcv		= obj.dataRcv;
-	    this->finRcv		= obj.finRcv;
-	    this->firstDataFlag = obj.firstDataFlag;
-
 	    this->ipVer 		= obj.ipVer;
 	    this->isUpDir		= obj.isUpDir;
 	    this->causeCode 	= obj.causeCode;
 	    this->protocolType 	= obj.protocolType;
 
-	    this->state 		= obj.state;
 	    this->sPort 		= obj.sPort;
 	    this->dPort 		= obj.dPort;
 	    this->pLoadPkt 		= obj.pLoadPkt;
@@ -349,19 +325,11 @@ typedef struct _tcpSession
 
 	void copy(const _tcpSession* obj)
 	{
-	    this->synRcv		= obj->synRcv;
-	    this->synAckRcv		= obj->synAckRcv;
-	    this->ackRcv		= obj->ackRcv;
-	    this->dataRcv		= obj->dataRcv;
-	    this->finRcv		= obj->finRcv;
-	    this->firstDataFlag = obj->firstDataFlag;
-
 	    this->ipVer 		= obj->ipVer;
 	    this->isUpDir		= obj->isUpDir;
 	    this->causeCode 	= obj->causeCode;
 	    this->protocolType 	= obj->protocolType;
 
-	    this->state 		= obj->state;
 	    this->sPort 		= obj->sPort;
 	    this->dPort 		= obj->dPort;
 	    this->pLoadPkt 		= obj->pLoadPkt;
@@ -646,8 +614,6 @@ typedef enum{
 	SESSION_TERM_TCP_NOCONN_DATA		= 22,
 	SESSION_TERM_TCP_NOCONN_NODATA		= 23,
 	SESSION_TERM_TCP_OVERWRITE			= 24,
-	SESSION_TERM_DNS_QUERY_SUCCESS		= 25,
-
 
 	SYSTEM_PKTLIMIT_TCP_CONN_DATA		= 30,
 	SYSTEM_PKTLIMIT_TCP_NOCONN_DATA		= 31,
@@ -660,7 +626,11 @@ typedef enum{
 	DUPLICATE_SYN						= 40,
 	FIN_NO_SESSION						= 50,
 
-	SYSTEM_CLEANUP_DNS_QUERY			= 99,
+	SYSTEM_DNS_FLUSH_REQ_RSP			= 60,
+	SYSTEM_DNS_FLUSH_RSP_REQ			= 61,
+	SYSTEM_CLEANUP_DNS_REQ_RSP			= 62,
+	SYSTEM_CLEANUP_DNS_RSP				= 63,
+	SYSTEM_CLEANUP_DNS_QUERY			= 99
 
 }causeCode;
 

@@ -51,7 +51,7 @@ class ProbeUtility : BaseConfig
 		void 		HEXDUMP(const void* pv, int len);
 		uint64_t 	getIpv4SessionKey(uint8_t &protocol, uint8_t direction, uint32_t &sourceIp, uint32_t &destIp, uint16_t &sourcePort, uint16_t &destPort);
 		void 	 	dnsDumpIpv4Data(string dir);
-		void 		loadResolvedIpv4();
+		void 		loadResolvedIpv4(string dir);
 };
 
 #endif /* SRC_PROBEUTILITY_H_ */

@@ -166,7 +166,7 @@ bool udpParser::parsePacketDNSQueries(uint32_t pos, uint32_t id_pos, MPacket *ms
 void udpParser::parsePacketDNSAnswers(uint32_t pos, MPacket *msgObj, const BYTE packet)
 {
 	uint16_t type, dataLen, ttl;
-	char ipv6ResolvedIp[INET6_ADDRSTRLEN];
+//	char ipv6ResolvedIp[INET6_ADDRSTRLEN];
 
 	std::string addressList = "";
 	dataLen = ttl = 0;
@@ -213,19 +213,19 @@ void udpParser::parsePacketDNSAnswers(uint32_t pos, MPacket *msgObj, const BYTE 
 
 					break;
 
-				case AAAA: /* IP6 Address */
-					msgObj->responseCode = 0;
-					if(Global::IPV6_PROCESSING)
-					{
-						pUt->ExtractIP6Address(packet, ipv6ResolvedIp, pos);
-
-						updateV6Url(std::string(ipv6ResolvedIp), std::string(msgObj->url));
-						addressList.assign(std::string(ipv6ResolvedIp));
-						addressList = "";
-					}
-					pos = pos + dataLen;
-					ipv6ResolvedIp[0] = 0;
-					break;
+//				case AAAA: /* IP6 Address */
+//					msgObj->responseCode = 0;
+//					if(Global::IPV6_PROCESSING)
+//					{
+//						pUt->ExtractIP6Address(packet, ipv6ResolvedIp, pos);
+//
+//						updateV6Url(std::string(ipv6ResolvedIp), std::string(msgObj->url));
+//						addressList.assign(std::string(ipv6ResolvedIp));
+//						addressList = "";
+//					}
+//					pos = pos + dataLen;
+//					ipv6ResolvedIp[0] = 0;
+//					break;
 
 				default:
 					addressList = "";
@@ -235,10 +235,12 @@ void udpParser::parsePacketDNSAnswers(uint32_t pos, MPacket *msgObj, const BYTE 
 			}
 		}
 
-		ipv6ResolvedIp[0] = 0;
+//		ipv6ResolvedIp[0] = 0;
 		msgObj->resolvedIp[0] = 0;
 
-		if(addressList.length() > 8 && addressList.length() < 40 )
+		if(msgObj->responseCode == 0 && addressList.empty())
+			strcpy(msgObj->resolvedIp, "NULL");
+		else
 			strcpy(msgObj->resolvedIp, addressList.c_str());
 	}
 	catch(const std::exception& e)

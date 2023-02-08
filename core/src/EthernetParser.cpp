@@ -82,10 +82,7 @@ void EthernetParser::parsePacket(const BYTE packet, MPacket *msgObj)
      	case ETH_MPLS_UC:
      			fn_decodeMPLS(packet + sizeof(struct ether_header), msgObj);
      			break;
-     	case ETH_IPV6:
-     			fn_decodeIPv6(packet + sizeof(struct ether_header), msgObj);
-     			break;
- 		default:
+     	default:
      		break;
      }
 }
@@ -110,10 +107,6 @@ void EthernetParser::fn_decode8021Q(const BYTE packet, MPacket *msgObj)
 		case ETH_PPP_SES:
 					fn_decodePPPoE((const BYTE)packet + packetSize, msgObj);
 					break;
-     	case ETH_IPV6:
-     				fn_decodeIPv6((const BYTE)packet + packetSize, msgObj);
-     			break;
-
 		default:
 					break;
 	}
@@ -185,67 +178,6 @@ void EthernetParser::abstractIpv4Address(const BYTE packet, MPacket *msgObj)
 	msgObj->dIp=(msgObj->dIp << 8) + (0xff & packet[offset + 3]);
 }
 
-void EthernetParser::abstractIpv6Address(const BYTE packet, MPacket *msgObj)
-{
-	uint16_t offset = 4;
-
-	offset += 4;
-	pUt->ExtractIP6Address(packet, msgObj->sIpv6, offset);
-
-	offset += 16;
-	pUt->ExtractIP6Address(packet, msgObj->dIpv6, offset);
-
-	if(strlen(msgObj->sIpv6) > 40 || strlen(msgObj->dIpv6) > 40)
-	{
-		msgObj->pType 		= 0;
-		return;
-	}
-}
-
-void EthernetParser::fn_decodeIPv6(const BYTE packet, MPacket *msgObj)
-{
-	uint16_t offset = 4;
-	char buffer[16];
-
-	ip6Header = (struct ip6_hdr *)packet;
-
-	msgObj->ipVer 			= ip6Header->ip6_vfc >> 4;
-
-	if(msgObj->ipVer != IPVersion6)
-	{
-		msgObj->pType = 0;
-		return;
-	}
-
-	msgObj->pType 			= ip6Header->ip6_nxt; // TCP or UDP
-
-	switch(msgObj->pType)
-	{
-		case PACKET_IPPROTO_UDP:
-		case PACKET_IPPROTO_TCP:
-					break;
-
-		default:
-					msgObj->pType = 0;
-					return;
-	}
-
-	msgObj->ipHLen 			= IPV6_HEADER_LEN;
-	msgObj->ipTLen 			= msgObj->ipHLen + (packet[offset] << 8) + packet[offset+1];	// Two Bytes
-
-	abstractIpv6Address(packet, msgObj);
-
-	msgObj->direction = getDirectionOnIPV6(msgObj->sIpv6, msgObj->dIpv6);
-
-	if(msgObj->pType == PACKET_IPPROTO_UDP) /* Check for Radius */
-		getProtocolType(packet, msgObj);
-
-	if(msgObj->pType == PACKET_IPPROTO_RADIUS)
-		return;
-
-	parseNextLayer(packet + msgObj->ipHLen, msgObj);
-}
-
 bool EthernetParser::IsIPInRange(uint32_t ip, uint32_t network, uint32_t mask)
 {
     uint32_t net_lower = (network & mask);
@@ -256,14 +188,13 @@ bool EthernetParser::IsIPInRange(uint32_t ip, uint32_t network, uint32_t mask)
     return false;
 }
 
-
 uint8_t EthernetParser::getDirectionOnIPV4(uint32_t &sourceIP, uint32_t &destIP)
 {
 	bool dirSet 		= false;
     uint16_t counter 	= 0;
     uint8_t direction 	= 0;
 
-	for(counter = 0; counter <= Global::IPV4_NO_OF_RANGE; counter++)
+	for(counter = 0; counter < Global::IPV4_NO_OF_RANGE; counter++)
 	{
 		if(IsIPInRange(sourceIP, Global::IPV4_RANGE[counter][0], Global::IPV4_RANGE[counter][1]))
 		{
@@ -271,39 +202,6 @@ uint8_t EthernetParser::getDirectionOnIPV4(uint32_t &sourceIP, uint32_t &destIP)
 			break;
 		}
 		else if(IsIPInRange(destIP, Global::IPV4_RANGE[counter][0], Global::IPV4_RANGE[counter][1]))
-		{
-			direction = DOWN;
-			break;
-		}
-	}
-
-	if(Global::PROCESS_OUT_OF_RANGE_IP)
-	{
-		if(direction == 0)
-			direction = UNMAPPED;
-	}
-
-	return direction;
-}
-
-uint8_t EthernetParser::getDirectionOnIPV6(char *sourceIP, char *destIP)
-{
-    uint8_t direction = 0;
-    uint16_t rangeLen = 0, counter = 0;
-    std::string ipInList;
-
-	for (counter = 0; counter < Global::IPV6Range.size(); ++counter)
-	{
-		ipInList = Global::IPV6Range.at(counter);
-		rangeLen = ipInList.length();
-
-		if(std::string(sourceIP).compare(0, rangeLen, ipInList) == 0)
-		{
-			direction = UP;
-			break;
-
-		}
-		else if(std::string(destIP).compare(0, rangeLen, ipInList) == 0)
 		{
 			direction = DOWN;
 			break;

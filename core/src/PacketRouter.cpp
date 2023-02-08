@@ -24,7 +24,6 @@ PacketRouter::PacketRouter(uint16_t intfid, uint16_t rid)
 	this->maxPktLen 		= Global::MAX_PKT_LEN_PER_INTERFACE[this->intfId];
 
 	this->bwData  			= new BWData(this->intfId, this->routerId);
-	this->cdnData  			= new CDNData(this->intfId, this->routerId);
 	this->ethParser 		= new EthernetParser(this->intfId, this->routerId);
 	this->msgObj 			= new MPacket();
 }
@@ -32,7 +31,6 @@ PacketRouter::PacketRouter(uint16_t intfid, uint16_t rid)
 PacketRouter::~PacketRouter()
 {
 	delete(this->bwData);
-	delete(this->cdnData);
 	delete(this->ethParser);
 	delete(this->msgObj);
 }
@@ -63,10 +61,6 @@ void PacketRouter::run()
 		if(prevMin != curMin)
 		{
 			bwData->setBWData(prevMin);
-
-			if(Global::PROCESS_CDN)
-				cdnData->setCDNData(prevMin);
-
 			prevMin = curMin;
 		}
 
@@ -119,9 +113,6 @@ void PacketRouter::decodePacket(RawPkt *rawPkt)
 	    bwData->updateBWData(curMin, msgObj);
 
 	    if(msgObj->direction == 0) return;
-
-	    if(Global::PROCESS_CDN)
-	    	checkCDN();
 
 	    switch(msgObj->ipVer)
 	    {
@@ -192,28 +183,6 @@ void PacketRouter::findSmForTcpPacket(MPacket* tcpPkt)
 				pushTcpPacketToSm(smId, tcpPkt);
 				break;
 
-		case IPVersion6:
-				switch(tcpPkt->direction)
-				{
-					case UP:
-						smId = tcpPkt->sPort % Global::TCP_SESSION_MANAGER_INSTANCES;
-						break;
-
-					case DOWN:
-						smId = tcpPkt->dPort % Global::TCP_SESSION_MANAGER_INSTANCES;
-						break;
-
-					case UNMAPPED:
-						smId = tcpPkt->sPort % Global::UNM_SESSION_MANAGER_INSTANCES;
-						break;
-
-					default:
-						return;
-						break;
-				}
-				pushTcpPacketToSm(smId, tcpPkt);
-				break;
-
 		default:
 				break;
 	}
@@ -260,28 +229,6 @@ void PacketRouter::findSmForUdpPacket(MPacket* udpPkt)
 						break;
 				}
 
-				pushUdpPacketToSm(smId, udpPkt);
-				break;
-
-		case IPVersion6:
-				switch(udpPkt->direction)
-				{
-					case UP:
-						smId = udpPkt->sPort % Global::UDP_SESSION_MANAGER_INSTANCES;
-						break;
-
-					case DOWN:
-						smId = udpPkt->dPort % Global::UDP_SESSION_MANAGER_INSTANCES;
-						break;
-
-					case UNMAPPED:
-						smId = udpPkt->sPort % Global::UNM_SESSION_MANAGER_INSTANCES;
-						break;
-
-					default:
-						return;
-						break;
-				}
 				pushUdpPacketToSm(smId, udpPkt);
 				break;
 
@@ -375,54 +322,4 @@ bool PacketRouter::IsIPInRange(uint32_t ip, uint32_t network, uint32_t mask)
     if(ip >= net_lower && ip <= net_upper)
         return true;
     return false;
-}
-
-void PacketRouter::checkCDN()
-{
-	std::string ipInList;
-    int rangeLen = 0;
-
-    switch(msgObj->ipVer)
-    {
-		case IPVersion4:
-		{	for(uint16_t counter = 0; counter <= Global::NO_OF_IPV4_CDN; counter++)
-			{
-				if(IsIPInRange(msgObj->sIp, Global::CDN_IPV4_RANGE[counter][0], Global::CDN_IPV4_RANGE[counter][1]))
-				{
-					cdnData->updateCDNData(curMin, msgObj);
-					break;
-				}
-				else if(IsIPInRange(msgObj->dIp, Global::CDN_IPV4_RANGE[counter][0], Global::CDN_IPV4_RANGE[counter][1]))
-				{
-					cdnData->updateCDNData(curMin, msgObj);
-					break;
-				}
-			}
-		}
-		break;
-
-		case IPVersion6:
-		{
-			for (uint16_t counter = 0; counter < Global::CDN_IPV6_RANGE.size(); ++counter)
-			{
-				ipInList = Global::CDN_IPV6_RANGE.at(counter);
-				rangeLen = ipInList.length();
-				if(std::string(msgObj->sIpv6).compare(0, rangeLen, ipInList) == 0)
-				{
-					cdnData->updateCDNData(curMin, msgObj);
-					break;
-				}
-				else if(std::string(msgObj->dIpv6).compare(0, rangeLen, ipInList) == 0)
-				{
-					cdnData->updateCDNData(curMin, msgObj);
-					break;
-				}
-			}
-		}
-		break;
-
-		default:
-				return;
-				break;
-    }
 }

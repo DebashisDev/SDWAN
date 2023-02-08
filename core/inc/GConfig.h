@@ -41,10 +41,6 @@ class GConfig
 		void	get_adminFlag(std::string& Key);
 		void	get_adminPort(std::string& Key);
 		void	get_ethernetInterface(std::string& Key);
-		void	get_solarInterface(std::string& Key);
-		void	get_solarTimeStamp(std::string& Key);
-		void	get_ipv6ProcessingFlag(std::string& Key);
-		void	get_ipv6Range(std::string& Key);
 		void	get_PPSPerInterface(std::string& Key);
 		void	get_interfaceCPU(std::string& Key);
 		void	get_routerCPU(std::string& Key);
@@ -54,14 +50,8 @@ class GConfig
 		void 	converSubNetToRange(char *ipr, char *Start, char *End);
 		void	get_routerPerInterface(std::string& Key);
 		void	get_ProcessOutOfRange(std::string& Key);
-		void	get_ProcessCDN(std::string& Key);
-		void	get_CdnIPRangeV4(std::string& Key);
-		void	get_CdnIPRangeV6(std::string& Key);
-		void	get_userAgentFlag(std::string& Key);
-		void	get_checkDuplicateFlag(std::string& Key);
 		void	get_processAckFlag(std::string& Key);
 		void	get_ackCrateFlag(std::string& Key);
-		void	get_vpsPacketPerSec(std::string& Key);
 		void	get_maxTcpSize(std::string& Key);
 		void	get_udpXdrForDns(std::string& Key);
 		void	get_DnsAnswerCount(std::string& Key);

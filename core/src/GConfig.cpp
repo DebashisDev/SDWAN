@@ -43,8 +43,6 @@ void GConfig::initialize(char *fileName)
 
 		/* Network Interface Setting */
 		get_ethernetInterface(Key);						/* ETHERNET_INTERFACE */
-		get_solarInterface(Key);						/* SOLAR_INTERFACE */
-		get_solarTimeStamp(Key);						/* SOLARFLARE_HW_TIMESTAMP */
 		get_interfaceCPU(Key);							/* PKT_LISTENER_CPU_CORE */
 
 		/* Network packet Setting */
@@ -58,21 +56,9 @@ void GConfig::initialize(char *fileName)
 
 		/* Range Setting */
 		get_IPV4Range(Key);								/* IPV4 RANGE */
-		get_ipv6Range(Key);								/* IPV6 RANGE */
-		get_ipv6ProcessingFlag(Key);					/* IPV6_PROCESSING */
 		get_ProcessOutOfRange(Key);						/* PROCESS_OUT_OF_RANGE_IP */
 
-		/* CDB Bandwidth Setting */
-		get_ProcessCDN(Key);							/* CDN PROCESSING */
-
-		if(Global::PROCESS_CDN)
-		{
-			get_CdnIPRangeV4(Key);						/* CDN IPV4 RANGE */
-			get_CdnIPRangeV6(Key);						/* CDN IPV6 RANGE */
-		}
-
 		/* TCP Setting */
-		get_userAgentFlag(Key);							/* PROCESS_USER_AGENT */
 		get_maxTcpSize(Key);							/* MAX_TCP_SIZE */
 
 		/* DNS Setting */
@@ -84,8 +70,6 @@ void GConfig::initialize(char *fileName)
 		get_smTimeLimit(Key);							/* SESSION_TIME_LIMIT */
 		get_smPacketLimit(Key);							/* SESSION_PKT_LIMIT */
 		get_ipSmCleanUpTime(Key);						/* IP_SESSION_CLEAN_UP_TIMEOUT_SEC */
-		get_vpsPacketPerSec(Key);						/* VPS_PACKET_PER_SEC */
-		get_checkDuplicateFlag(Key);					/* CHECK_DUPLICATE */
 		get_processAckFlag(Key);						/* PROCESS_ACK */
 		get_ackCrateFlag(Key);							/* ACK_CREATE_SESSION */
 		get_noOfTcpFlusher(Key);						/* NO_OF_TCP_FLUSHER */
@@ -284,41 +268,6 @@ void GConfig::get_ethernetInterface(std::string& Key)
 	}
 }
 
-void GConfig::get_solarInterface(std::string& Key)
-{
-	Value.clear();
-
-	if(Key.compare("SOLAR_INTERFACE") == 0)
-	{
-		fp >> Value;
-		int cnt = 0;
-		char *pch = strtok((char *)Value.c_str(),",");
-
-		while (pch != NULL)
-		{
-			Global::SOLAR_INTERFACES[cnt] = std::string(pch);
-			pch = strtok (NULL, ",");
-			buffer[0] = 0;
-			sprintf(buffer, "SOLAR_INTERFACES[%d]", cnt);
-			printf("%50s\t%50s\n", buffer, Global::SOLAR_INTERFACES[cnt].c_str());
-			cnt++;
-		}
-		Global::NO_OF_SOLAR_INTERFACE = cnt;
-		printf("%50s\t%50d\n", "SOLAR_INTERFACES No.", Global::NO_OF_SOLAR_INTERFACE);
-	}
-}
-
-void GConfig::get_solarTimeStamp(std::string& Key)
-{
-	Value.clear();
-
-	if(Key.compare("SOLARFLARE_HW_TIMESTAMP") == 0)
-	{
-		fp >> Value;
-		Global::SOLARFLARE_HW_TIMESTAMP = Value.compare("true") == 0 ? 1 : 0;
-		printf("%50s\t%50s\n", "SOLARFLARE_HW_TIMESTAMP",  Value.c_str());
-	}
-}
 
 void GConfig::get_interfaceCPU(std::string& Key)
 {
@@ -410,55 +359,6 @@ void GConfig::get_PPSCap(std::string& Key)
 	}
 }
 
-/* Range Setting */
-
-//void GConfig::get_IPV4Range(std::string& Key)
-//{
-//	Value.clear();
-//
-//	if(Key.compare("IPV4_RANGE") == 0)
-//	{
-//		fp >> Value;
-//		char *pchHash, *pchComma;
-//		uint16_t cnt, cnt1;
-//		uint32_t x = 0;
-//		cnt = cnt1 = 0;
-//		size_t pos = 0;
-//		std::string token;
-//
-//		while ((pos = Value.find(",")) != std::string::npos) {
-//			token = Value.substr(0, pos);
-//			pchHash = strtok((char *)token.c_str(),"-");
-//			while (pchHash != NULL)
-//			{
-//				Global::IPV4_RANGE[cnt1][cnt] = ipToLong(pchHash, &x);
-//				buffer[0] = 0;
-//				sprintf(buffer, "%s[%d][%d]", "IPV4_RANGE", cnt1, cnt);
-//				printf("%50s\t%50lu\n", buffer, Global::IPV4_RANGE[cnt1][cnt]);
-//				pchHash = strtok (NULL, "-");
-//				cnt++;
-//				x = 0;
-//			}
-//			cnt1++;
-//			cnt = 0;
-//			Value.erase(0, pos + 1);
-//		}
-//		cnt = 0;
-//		x = 0;
-//		pchComma = strtok((char *)Value.c_str(),"-");
-//		while (pchComma != NULL)
-//		{
-//			Global::IPV4_RANGE[cnt1][cnt] = ipToLong(pchComma, &x);
-//			sprintf(buffer, "%s[%d][%d]", "IPV4_RANGE", cnt1, cnt);
-//			printf("%50s\t%50lu\n", buffer, Global::IPV4_RANGE[cnt1][cnt]);
-//			pchComma = strtok (NULL, "-");
-//			cnt++;
-//			x = 0;
-//		}
-//		Global::IPV4_NO_OF_RANGE = cnt1;
-//	}
-//}
-
 void GConfig::get_IPV4Range(std::string& Key)
 {
 	char startIp[16], endIp[16];
@@ -484,33 +384,10 @@ void GConfig::get_IPV4Range(std::string& Key)
 			cnt++;
 		}
 		Global::IPV4_NO_OF_RANGE = cnt;
-		printf("\tIPV4_NO_OF_RANGE			:: %02d\n", Global::IPV4_NO_OF_RANGE);
+		printf("\t                          IPV4_NO_OF_RANGE			                             :: %02d\n", Global::IPV4_NO_OF_RANGE);
 
 		for(uint16_t i = 0; i < Global::IPV4_NO_OF_RANGE; i++)
-		printf("\tIPV4_RANGE        			:: [%u]| [%u]\n", Global::IPV4_RANGE[i][0], Global::IPV4_RANGE[i][1]);
-	}
-}
-
-void GConfig::get_ipv6Range(std::string& Key)
-{
-	int i = 0;
-
-	Value.clear();
-
-	if(Key.compare("IPV6_RANGE") == 0)
-	{
-		fp >> Value;
-		i = 0;
-		char * pch;
-		pch = strtok((char *)Value.c_str(),",");
-		while (pch != NULL)
-		{
-			Global::IPV6Range.push_back(pch);
-
-			printf("%50s\t%50s\n", "IPV6_RANGE",  pch);
-			pch = strtok (NULL, ",");
-			i++;
-		}
+		printf("\t                                IPV4_RANGE        	             :: [%u]| [%u]\n", Global::IPV4_RANGE[i][0], Global::IPV4_RANGE[i][1]);
 	}
 }
 
@@ -536,17 +413,6 @@ void GConfig::converSubNetToRange(char *ipr, char *Start, char *End)
 	str2 += ipr[idx];
 
 	strcpy(End, initSection::ipSubNetMap[atoi(str2.c_str())].c_str());
-}
-void GConfig::get_ipv6ProcessingFlag(std::string& Key)
-{
-	Value.clear();
-
-	if(Key.compare("IPV6_PROCESSING") == 0)
-	{
-		fp >> Value;
-		Global::IPV6_PROCESSING = Value.compare("true") == 0 ? 1 : 0;
-		printf("%50s\t%50s\n", "IPV6_PROCESSING",  Value.c_str());
-	}
 }
 
 void GConfig::get_ProcessOutOfRange(std::string& Key)
@@ -631,100 +497,7 @@ void GConfig::get_routerCPU(std::string& Key)
 	}
 }
 
-/* CDB Bandwidth Setting */
-
-void GConfig::get_ProcessCDN(std::string& Key)
-{
-	Value.clear();
-
-	if(Key.compare("PROCESS_CDN") == 0)
-	{
-		fp >> Value;
-		Global::PROCESS_CDN = Value.compare("true") == 0 ? true : false;
-		printf("%50s\t%50s\n", "PROCESS_CDN", Value.c_str());
-	}
-}
-
-void GConfig::get_CdnIPRangeV4(std::string& Key)
-{
-	Value.clear();
-
-	if(Key.compare("CDN_IPV4_RANGE") == 0)
-	{
-		fp >> Value;
-		char *pchHash, *pchComma;
-		uint32_t x = 0;
-		uint16_t cnt = 0, cnt1 = 0;
-		size_t pos = 0;
-		std::string token;
-
-		while ((pos = Value.find(",")) != std::string::npos) {
-			token = Value.substr(0, pos);
-			pchHash = strtok((char *)token.c_str(),"-");
-			while (pchHash != NULL)
-			{
-				Global::CDN_IPV4_RANGE[cnt1][cnt] = ipToLong(pchHash, &x);
-				buffer[0] = 0;
-				sprintf(buffer, "%s[%d][%d]", "CDN_IPV4_RANGE", cnt1, cnt);
-				printf("%50s\t%50lu\n", buffer, Global::CDN_IPV4_RANGE[cnt1][cnt]);
-				pchHash = strtok (NULL, "-");
-				cnt++;
-				x = 0;
-			}
-			cnt1++;
-			cnt = 0;
-			Value.erase(0, pos + 1);
-		}
-		cnt = 0;
-		x = 0;
-		pchComma = strtok((char *)Value.c_str(),"-");
-		while (pchComma != NULL)
-		{
-			Global::CDN_IPV4_RANGE[cnt1][cnt] = ipToLong(pchComma, &x);
-			sprintf(buffer, "%s[%d][%d]", "CDN_IPV4_RANGE", cnt1, cnt);
-			printf("%50s\t%50lu\n", buffer, Global::CDN_IPV4_RANGE[cnt1][cnt]);
-			pchComma = strtok (NULL, "-");
-			cnt++;
-			x = 0;
-		}
-		Global::NO_OF_IPV4_CDN = cnt1;
-	}
-}
-
-void GConfig::get_CdnIPRangeV6(std::string& Key)
-{
-	Value.clear();
-
-	if(Key.compare("CDN_IPV6_RANGE") == 0)
-	{
-		fp >> Value;
-		int i = 0;
-		char * pch;
-		pch = strtok((char *)Value.c_str(),",");
-		while (pch != NULL)
-		{
-			Global::CDN_IPV6_RANGE.push_back(pch);
-
-			printf("%50s\t%50s\n", "CDN_IPV6_RANGE", pch);
-			pch = strtok (NULL, ",");
-			i++;
-		}
-	}
-}
-
 /* TCP Setting */
-
-void GConfig::get_userAgentFlag(std::string& Key)
-{
-	Value.clear();
-
-	if(Key.compare("PROCESS_USER_AGENT") == 0)
-	{
-		fp >> Value;
-		Global::PROCESS_USER_AGENT = Value.compare("true") == 0 ? true : false;
-		printf("%50s\t%50s\n", "PROCESS_USER_AGENT", Value.c_str());
-	}
-}
 
 void GConfig::get_maxTcpSize(std::string& Key)
 {
@@ -827,30 +600,6 @@ void GConfig::get_ipSmCleanUpTime(std::string& Key)
 		fp >> Value;
 		Global::IP_SESSION_CLEAN_UP_TIMEOUT_SEC = atoi(Value.c_str());
 		printf("%50s\t%50d\n", "IP_SESSION_CLEAN_UP_TIMEOUT_SEC", Global::IP_SESSION_CLEAN_UP_TIMEOUT_SEC);
-	}
-}
-
-void GConfig::get_vpsPacketPerSec(std::string& Key)
-{
-	Value.clear();
-
-	if(Key.compare("VPS_PACKET_PER_SEC") == 0)
-	{
-		fp >> Value;
-		Global::VPS_PACKET_PER_SEC = atoi(Value.c_str());
-		printf("%50s\t%50d\n", "VPS_PACKET_PER_SEC", Global::VPS_PACKET_PER_SEC);
-	}
-}
-
-void GConfig::get_checkDuplicateFlag(std::string& Key)
-{
-	Value.clear();
-
-	if(Key.compare("CHECK_DUPLICATE") == 0)
-	{
-		fp >> Value;
-		Global::CHECK_DUPLICATE = Value.compare("true") == 0 ? true : false;
-		printf("%50s\t%50s\n", "CHECK_DUPLICATE", Value.c_str());
 	}
 }
 

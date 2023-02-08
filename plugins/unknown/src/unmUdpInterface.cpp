@@ -396,7 +396,7 @@ void unmUdpInterface::DNSPacketEntry(MPacket *msgObj)
 							if(pDnsSession->state == RESPONSE)	{ //Response has arrieved before Req
 								requestUpdateDnsSession(pDnsSession, msgObj);
 								pDnsSession->state = SUCCESS;
-								flushDnsSession(pDnsSession, DNS_FLUSH_RSP_REQ);
+								flushDnsSession(pDnsSession, SYSTEM_DNS_FLUSH_RSP_REQ);
 								releaseIndexDns(pDnsSession->poolIndex);
 								ipV4dnsSessionMap.erase(ipV4key);
 								return;
@@ -425,46 +425,46 @@ void unmUdpInterface::DNSPacketEntry(MPacket *msgObj)
 					}
 					break;
 
-					case IPVersion6:
-					{
-						getIpv6DNSSessionKey(ipV6key, msgObj->sIpv6, msgObj->transactionId, msgObj->sPort);
-
-						std::map<string, uint32_t>::iterator it6 = ipV6dnsSessionMap.find(ipV6key);
-						if(it6 != ipV6dnsSessionMap.end())
-						{
-							pDnsSession = getDnsSessionFromPool(it6->second);
-
-							if(pDnsSession->state == RESPONSE)	{ //Response has arrieved before Req
-								requestUpdateDnsSession(pDnsSession, msgObj);
-								pDnsSession->state = SUCCESS;
-								flushDnsSession(pDnsSession, DNS_FLUSH_RSP_REQ);
-								releaseIndexDns(pDnsSession->poolIndex);
-								ipV6dnsSessionMap.erase(ipV6key);
-								return;
-							}
-							else {	//Duplicate DNS Request seems
-								uint32_t poolIndex = pDnsSession->poolIndex;
-								pDnsSession->reset();
-								pDnsSession->poolIndex = poolIndex;
-								pDnsSession->dnsSessionV6Key = ipV6key;
-								requestUpdateDnsSession(pDnsSession, msgObj);
-							}
-						}
-						else
-						{
-							if((ipV4dnsSessionMap.size() + ipV6dnsSessionMap.size()) < freeBitPosDnsMax)
-							{
-								uint32_t poolIndex = getFreeIndexDns();
-								pDnsSession = getDnsSessionFromPool(poolIndex);
-								pDnsSession->reset();
-								pDnsSession->poolIndex = poolIndex;
-								requestUpdateDnsSession(pDnsSession, msgObj);
-								pDnsSession->dnsSessionV6Key = ipV6key;
-								ipV6dnsSessionMap[pDnsSession->dnsSessionV6Key] = poolIndex;
-							}
-						}
-					}
-					break;
+//					case IPVersion6:
+//					{
+//						getIpv6DNSSessionKey(ipV6key, msgObj->sIpv6, msgObj->transactionId, msgObj->sPort);
+//
+//						std::map<string, uint32_t>::iterator it6 = ipV6dnsSessionMap.find(ipV6key);
+//						if(it6 != ipV6dnsSessionMap.end())
+//						{
+//							pDnsSession = getDnsSessionFromPool(it6->second);
+//
+//							if(pDnsSession->state == RESPONSE)	{ //Response has arrieved before Req
+//								requestUpdateDnsSession(pDnsSession, msgObj);
+//								pDnsSession->state = SUCCESS;
+//								flushDnsSession(pDnsSession, DNS_FLUSH_RSP_REQ);
+//								releaseIndexDns(pDnsSession->poolIndex);
+//								ipV6dnsSessionMap.erase(ipV6key);
+//								return;
+//							}
+//							else {	//Duplicate DNS Request seems
+//								uint32_t poolIndex = pDnsSession->poolIndex;
+//								pDnsSession->reset();
+//								pDnsSession->poolIndex = poolIndex;
+//								pDnsSession->dnsSessionV6Key = ipV6key;
+//								requestUpdateDnsSession(pDnsSession, msgObj);
+//							}
+//						}
+//						else
+//						{
+//							if((ipV4dnsSessionMap.size() + ipV6dnsSessionMap.size()) < freeBitPosDnsMax)
+//							{
+//								uint32_t poolIndex = getFreeIndexDns();
+//								pDnsSession = getDnsSessionFromPool(poolIndex);
+//								pDnsSession->reset();
+//								pDnsSession->poolIndex = poolIndex;
+//								requestUpdateDnsSession(pDnsSession, msgObj);
+//								pDnsSession->dnsSessionV6Key = ipV6key;
+//								ipV6dnsSessionMap[pDnsSession->dnsSessionV6Key] = poolIndex;
+//							}
+//						}
+//					}
+//					break;
 
 					default:
 						return;
@@ -490,7 +490,7 @@ void unmUdpInterface::DNSPacketEntry(MPacket *msgObj)
 									if(pDnsSession->state == QUERY) {
 										responseUpdateDnsSession(pDnsSession, msgObj);
 										pDnsSession->state = SUCCESS;
-										flushDnsSession(pDnsSession, DNS_FLUSH_REQ_RSP);
+										flushDnsSession(pDnsSession, SYSTEM_DNS_FLUSH_REQ_RSP);
 										releaseIndexDns(pDnsSession->poolIndex);
 										ipV4dnsSessionMap.erase(ipV4key);
 									}
@@ -518,46 +518,46 @@ void unmUdpInterface::DNSPacketEntry(MPacket *msgObj)
 					}
 					break;
 
-					case IPVersion6:
-					{
-								getIpv6DNSSessionKey(ipV6key, msgObj->dIpv6, msgObj->transactionId, msgObj->dPort);
-
-								std::map<string, uint32_t>::iterator it6 = ipV6dnsSessionMap.find(ipV6key);
-
-								if(it6 != ipV6dnsSessionMap.end())
-								{
-									pDnsSession = getDnsSessionFromPool(it6->second);
-
-									if(pDnsSession->state == QUERY) {
-										responseUpdateDnsSession(pDnsSession, msgObj);
-										pDnsSession->state = SUCCESS;
-										flushDnsSession(pDnsSession, DNS_FLUSH_REQ_RSP);
-										releaseIndexDns(pDnsSession->poolIndex);
-										ipV6dnsSessionMap.erase(ipV6key);
-									}
-									else {	//Duplicate DNS Response seems
-										uint32_t poolIndex = pDnsSession->poolIndex;
-										pDnsSession->reset();
-										pDnsSession->poolIndex = poolIndex;
-										pDnsSession->dnsSessionV6Key = ipV6key;
-										responseUpdateDnsSession(pDnsSession, msgObj);
-									}
-								}
-								else
-								{
-									if((ipV4dnsSessionMap.size() + ipV6dnsSessionMap.size()) < freeBitPosDnsMax)
-									{
-										uint32_t poolIndex = getFreeIndexDns();
-										pDnsSession = getDnsSessionFromPool(poolIndex);
-										pDnsSession->reset();
-										pDnsSession->poolIndex = poolIndex;
-										responseUpdateDnsSession(pDnsSession, msgObj);
-										pDnsSession->dnsSessionV6Key = ipV6key;
-										ipV6dnsSessionMap[pDnsSession->dnsSessionV6Key] = poolIndex;
-									}
-								}
-					}
-					break;
+//					case IPVersion6:
+//					{
+//								getIpv6DNSSessionKey(ipV6key, msgObj->dIpv6, msgObj->transactionId, msgObj->dPort);
+//
+//								std::map<string, uint32_t>::iterator it6 = ipV6dnsSessionMap.find(ipV6key);
+//
+//								if(it6 != ipV6dnsSessionMap.end())
+//								{
+//									pDnsSession = getDnsSessionFromPool(it6->second);
+//
+//									if(pDnsSession->state == QUERY) {
+//										responseUpdateDnsSession(pDnsSession, msgObj);
+//										pDnsSession->state = SUCCESS;
+//										flushDnsSession(pDnsSession, DNS_FLUSH_REQ_RSP);
+//										releaseIndexDns(pDnsSession->poolIndex);
+//										ipV6dnsSessionMap.erase(ipV6key);
+//									}
+//									else {	//Duplicate DNS Response seems
+//										uint32_t poolIndex = pDnsSession->poolIndex;
+//										pDnsSession->reset();
+//										pDnsSession->poolIndex = poolIndex;
+//										pDnsSession->dnsSessionV6Key = ipV6key;
+//										responseUpdateDnsSession(pDnsSession, msgObj);
+//									}
+//								}
+//								else
+//								{
+//									if((ipV4dnsSessionMap.size() + ipV6dnsSessionMap.size()) < freeBitPosDnsMax)
+//									{
+//										uint32_t poolIndex = getFreeIndexDns();
+//										pDnsSession = getDnsSessionFromPool(poolIndex);
+//										pDnsSession->reset();
+//										pDnsSession->poolIndex = poolIndex;
+//										responseUpdateDnsSession(pDnsSession, msgObj);
+//										pDnsSession->dnsSessionV6Key = ipV6key;
+//										ipV6dnsSessionMap[pDnsSession->dnsSessionV6Key] = poolIndex;
+//									}
+//								}
+//					}
+//					break;
 
 					default:
 								return;
@@ -598,9 +598,19 @@ void unmUdpInterface::requestUpdateDnsSession(dnsSession *pDnsSession, MPacket *
 
 void unmUdpInterface::responseUpdateDnsSession(dnsSession *pDnsSession, MPacket *msgObj)
 {
+	if(pDnsSession->ipVer == 0) 		pDnsSession->ipVer 			= msgObj->ipVer;
 	pDnsSession->transactionId 			= msgObj->transactionId;
 	pDnsSession->queryEndEpochSec 		= msgObj->frTimeEpochSec;
 	pDnsSession->queryEndEpochNanoSec 	= msgObj->frTimeEpochNanoSec;
+
+	switch(msgObj->ipVer)
+	{
+		case IPVersion4:
+
+			if(pDnsSession->sIpv4 == 0) pDnsSession->sIpv4 	= msgObj->sIp;
+			if(pDnsSession->dIpv4 == 0)	pDnsSession->dIpv4 	= msgObj->dIp;
+				break;
+	}
 
 	if(msgObj->responseCode <= 26)
 	{
@@ -610,6 +620,8 @@ void unmUdpInterface::responseUpdateDnsSession(dnsSession *pDnsSession, MPacket 
 	else
 		pDnsSession->errorCode 			= 24;
 
+	if(pDnsSession->sourcePort == 0) pDnsSession->sourcePort 	= msgObj->sPort;
+	if(pDnsSession->destPort == 0)   pDnsSession->destPort 		= msgObj->dPort;
 	pDnsSession->state 					= RESPONSE;
 
 	if(strlen(pDnsSession->URL) == 0 && strlen(msgObj->url) != 0)
@@ -662,16 +674,16 @@ void unmUdpInterface::dnsTimeOutClean()
 			{
 				pDnsSession->queryStartEpochSec = pDnsSession->queryEndEpochSec;
 				pDnsSession->queryStartEpochNanoSec = pDnsSession->queryEndEpochNanoSec;
-				flushType = DNS_FLUSH_CLEANUP_RSP_NOREQ;
+				flushType = SYSTEM_CLEANUP_DNS_RSP;
 			}
 			else if(pDnsSession->queryEndEpochSec == 0 && pDnsSession->queryStartEpochSec != 0)
 			{
 				pDnsSession->queryEndEpochSec = pDnsSession->queryStartEpochSec;
 				pDnsSession->queryEndEpochNanoSec = pDnsSession->queryStartEpochNanoSec;
-				flushType = DNS_FLUSH_CLEANUP_REQ_NORSP;
+				flushType = SYSTEM_CLEANUP_DNS_QUERY;
 			}
 			else
-			{ flushType = DNS_FLUSH_CLEANUP_REQ_RSP; }
+			{ flushType = SYSTEM_CLEANUP_DNS_REQ_RSP; }
 
 			pDnsSession->causeCode = SYSTEM_CLEANUP_DNS_QUERY;
 
@@ -697,51 +709,51 @@ void unmUdpInterface::dnsTimeOutClean()
 	dnsSessionCleanUpMap.clear();
 	dnsSessionCleanUpMap_cnt = 0;
 
-	/*** IPV6 ***/
-
-	for(auto elem : ipV6dnsSessionMap)
-	{
-		dnsSession *pDnsSession = getDnsSessionFromPool(elem.second);
-
-		if(((pDnsSession->queryStartEpochSec > 0) && ((curEpochSec - pDnsSession->queryStartEpochSec) > IdleTimeSec)) ||
-				((pDnsSession->queryEndEpochSec > 0) && ((curEpochSec - pDnsSession->queryEndEpochSec) > IdleTimeSec)))
-		{
-			if(pDnsSession->queryStartEpochSec == 0 && pDnsSession->queryEndEpochSec != 0)
-			{
-				pDnsSession->queryStartEpochSec = pDnsSession->queryEndEpochSec;
-				pDnsSession->queryStartEpochNanoSec = pDnsSession->queryEndEpochNanoSec;
-				flushType = DNS_FLUSH_CLEANUP_RSP_NOREQ;
-			}
-			else if(pDnsSession->queryEndEpochSec == 0 && pDnsSession->queryStartEpochSec != 0)
-			{
-				pDnsSession->queryEndEpochSec = pDnsSession->queryStartEpochSec;
-				pDnsSession->queryEndEpochNanoSec = pDnsSession->queryStartEpochNanoSec;
-				flushType = DNS_FLUSH_CLEANUP_REQ_NORSP;
-			}
-			else
-			{ flushType = DNS_FLUSH_CLEANUP_REQ_RSP; }
-
-			pDnsSession->causeCode = SYSTEM_CLEANUP_DNS_QUERY;
-
-			if(pDnsSession->state == QUERY)
-			{
-				pDnsSession->errorCode = SYSTEM_CLEANUP_DNS_QUERY;
-				strcpy(pDnsSession->errorDesc, "No Response");
-			}
-			/* Flush only DNS Request Message (As No Response is only for Request) */
-			if(strlen(pDnsSession->URL) != 0 && pDnsSession->state != RESPONSE) flushDnsSession(pDnsSession, flushType);
-			dnsSessionCleanUpMap[dnsSessionCleanUpMap_cnt].ipv6key = elem.first;
-			dnsSessionCleanUpMap[dnsSessionCleanUpMap_cnt].poolIndex = elem.second;
-			dnsSessionCleanUpMap_cnt++;
-		}
-	}
-
-	for(uint32_t i = 0; i < dnsSessionCleanUpMap_cnt; i++)
-	{
-		releaseIndexDns(dnsSessionCleanUpMap[i].poolIndex);
-		ipV6dnsSessionMap.erase(dnsSessionCleanUpMap[i].ipv6key);
-	}
-
-	dnsSessionCleanUpMap.clear();
-	dnsSessionCleanUpMap_cnt = 0;
+//	/*** IPV6 ***/
+//
+//	for(auto elem : ipV6dnsSessionMap)
+//	{
+//		dnsSession *pDnsSession = getDnsSessionFromPool(elem.second);
+//
+//		if(((pDnsSession->queryStartEpochSec > 0) && ((curEpochSec - pDnsSession->queryStartEpochSec) > IdleTimeSec)) ||
+//				((pDnsSession->queryEndEpochSec > 0) && ((curEpochSec - pDnsSession->queryEndEpochSec) > IdleTimeSec)))
+//		{
+//			if(pDnsSession->queryStartEpochSec == 0 && pDnsSession->queryEndEpochSec != 0)
+//			{
+//				pDnsSession->queryStartEpochSec = pDnsSession->queryEndEpochSec;
+//				pDnsSession->queryStartEpochNanoSec = pDnsSession->queryEndEpochNanoSec;
+//				flushType = SYSTEM_CLEANUP_DNS_RSP;
+//			}
+//			else if(pDnsSession->queryEndEpochSec == 0 && pDnsSession->queryStartEpochSec != 0)
+//			{
+//				pDnsSession->queryEndEpochSec = pDnsSession->queryStartEpochSec;
+//				pDnsSession->queryEndEpochNanoSec = pDnsSession->queryStartEpochNanoSec;
+//				flushType = SYSTEM_CLEANUP_DNS_QUERY;
+//			}
+//			else
+//			{ flushType = SYSTEM_CLEANUP_DNS_REQ_RSP; }
+//
+//			pDnsSession->causeCode = SYSTEM_CLEANUP_DNS_QUERY;
+//
+//			if(pDnsSession->state == QUERY)
+//			{
+//				pDnsSession->errorCode = SYSTEM_CLEANUP_DNS_QUERY;
+//				strcpy(pDnsSession->errorDesc, "No Response");
+//			}
+//			/* Flush only DNS Request Message (As No Response is only for Request) */
+//			if(strlen(pDnsSession->URL) != 0 && pDnsSession->state != RESPONSE) flushDnsSession(pDnsSession, flushType);
+//			dnsSessionCleanUpMap[dnsSessionCleanUpMap_cnt].ipv6key = elem.first;
+//			dnsSessionCleanUpMap[dnsSessionCleanUpMap_cnt].poolIndex = elem.second;
+//			dnsSessionCleanUpMap_cnt++;
+//		}
+//	}
+//
+//	for(uint32_t i = 0; i < dnsSessionCleanUpMap_cnt; i++)
+//	{
+//		releaseIndexDns(dnsSessionCleanUpMap[i].poolIndex);
+//		ipV6dnsSessionMap.erase(dnsSessionCleanUpMap[i].ipv6key);
+//	}
+//
+//	dnsSessionCleanUpMap.clear();
+//	dnsSessionCleanUpMap_cnt = 0;
 }

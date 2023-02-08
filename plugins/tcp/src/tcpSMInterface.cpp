@@ -229,35 +229,6 @@ tcpSession* tcpSMInterface::getSession(MPacket *msgObj, bool *found, bool create
 	return pTcpSession;
 }
 
-void tcpSMInterface::updateTime(tcpSession *pTcpSession, int id)
-{
-	switch(id)
-	{
-		case SYN_RCV:
-				pTcpSession->synRcv = true;
-				break;
-
-		case SYN_ACK_RCV:
-				pTcpSession->synAckRcv = true;
-				break;
-
-		case ACK_RCV:
-				pTcpSession->ackRcv = true;
-				break;
-
-		case DATA_RCV:
-				pTcpSession->dataRcv = true;
-				pTcpSession->firstDataFlag = true;
-				break;
-
-		case FIN_RCV:
-				pTcpSession->finRcv = true;
-				pTcpSession->endTimeEpochNanoSec = pTcpSession->pckLastTimeEpochNanoSec;
-				pTcpSession->causeCode = SESSION_TERM_TCP_FIN_RECEIVED;
-				break;
-	}
-}
-
 void tcpSMInterface::packetEntry(MPacket *msgObj)
 {
 	if(msgObj == NULL)
@@ -269,8 +240,10 @@ void tcpSMInterface::packetEntry(MPacket *msgObj)
 	switch(msgObj->tcpFlags)
 	{
 		case  SYN_RCV:
+		case SYN_ACK_RCV:
+		case ACK_RCV:
+		case DATA_RCV:
 				pTcpSession = getSession(msgObj, &found, true);
-
 				/* Couldn't Create Session */
 				if(pTcpSession == NULL) return;
 
@@ -279,164 +252,34 @@ void tcpSMInterface::packetEntry(MPacket *msgObj)
 				/* Create New Session */
 				if(!found)
 				{
-					updateTime(pTcpSession, SYN_RCV);			/* Update Syn Time */
 					initializeSession(pTcpSession, msgObj);	/* Initialize TCP Packet */
 					updateTcpSession(pTcpSession, msgObj);			/* Update TCP Packet */
 					return;
 				}
-
-				if(pTcpSession->synRcv)
-				{
-					updateTcpSession(pTcpSession, msgObj);		/* Update TCP Packet */
-					break;
-				}
-				else if(pTcpSession->synAckRcv && pTcpSession->ackRcv)
-				{
-					pTcpSession->state = CONNECTED;
-					updateTime(pTcpSession, SYN_RCV);			/* Update Syn Time */
-					updateTcpSession(pTcpSession, msgObj);		/* Update TCP Packet */
-				}
-				else if(pTcpSession->synAckRcv || pTcpSession->ackRcv)
-				{
-					updateTime(pTcpSession, SYN_RCV);			/* Update Syn Time */
-					updateTcpSession(pTcpSession, msgObj);			/* Update TCP Packet */
-				}
 				else
 				{
-					updateTime(pTcpSession, SYN_RCV);
-					updateTcpSession(pTcpSession, msgObj);
-				}
-				break;
-
-		case SYN_ACK_RCV:
-				pTcpSession = getSession(msgObj, &found, true);
-
-				/* Couldn't Create Session */
-				if(pTcpSession == NULL) return;
-
-				timeStampArrivalPacket(pTcpSession, msgObj->frTimeEpochSec, msgObj->frTimeEpochNanoSec);
-
-				/* Create New Session */
-				if(!found)
-				{
-					updateTime(pTcpSession, SYN_ACK_RCV);		/* Update Syn Ack Time */
-					initializeSession(pTcpSession, msgObj);
-					updateTcpSession(pTcpSession, msgObj);
-					return;
-				}
-
-				if(pTcpSession->synAckRcv)
-				{
-					updateTcpSession(pTcpSession, msgObj);
-					break;
-				}
-				else if (pTcpSession->synRcv && pTcpSession->ackRcv)
-				{
-					pTcpSession->state = CONNECTED;
-					updateTime(pTcpSession, SYN_ACK_RCV);			/* Update Syn Ack Time */
-					updateTcpSession(pTcpSession, msgObj);
-				}
-				else if (pTcpSession->synRcv || pTcpSession->ackRcv)
-				{
-					updateTime(pTcpSession, SYN_ACK_RCV);			/* Update Syn Ack Time */
-					updateTcpSession(pTcpSession, msgObj);
-				}
-				else
-				{
-					updateTime(pTcpSession, SYN_ACK_RCV);
 					updateTcpSession(pTcpSession, msgObj);
 				}
 
-				break;
-
-		case ACK_RCV:
-				/* Don't Process ACK Payload is Zero */
-				if(msgObj->pLoad == 0)
-					return;
-				else if(!Global::PROCESS_ACK)
-					return;
-
-				if(Global::ACK_CREATE_SESSION)
-					pTcpSession = getSession(msgObj, &found, true);
-				else
-					pTcpSession = getSession(msgObj, &found, false);
-
-				/* Couldn't Create Session */
-				if(pTcpSession == NULL) return;
-
-				timeStampArrivalPacket(pTcpSession, msgObj->frTimeEpochSec, msgObj->frTimeEpochNanoSec);
-
-				/* Create New Session */
-				if(!found)
-				{
-					updateTime(pTcpSession, ACK_RCV);						/* Update Syn Ack Time */
-					initializeSession(pTcpSession, msgObj);
-					updateTcpSession(pTcpSession, msgObj);
-					return;
-				}
-
-				if(pTcpSession->ackRcv)
-				{
-					updateTcpSession(pTcpSession, msgObj);
-					break;
-				}
-				else if (pTcpSession->synRcv && pTcpSession->synAckRcv)
-				{
-					pTcpSession->state = CONNECTED;
-					updateTime(pTcpSession, ACK_RCV);			/* Update Syn Ack Time */
-					updateTcpSession(pTcpSession, msgObj);
-				}
-				else if(pTcpSession->synRcv || pTcpSession->synAckRcv)
-				{
-					updateTime(pTcpSession, ACK_RCV);			/* Update Syn Ack Time */
-					updateTcpSession(pTcpSession, msgObj);
-				}
-				else
-				{
-					updateTime(pTcpSession, ACK_RCV);
-					updateTcpSession(pTcpSession, msgObj);
-				}
-				break;
-
-		case DATA_RCV:
-				pTcpSession = getSession(msgObj, &found, true);
-
-				/* Couldn't Create Session */
-				if(pTcpSession == NULL) return;
-
-				timeStampArrivalPacket(pTcpSession, msgObj->frTimeEpochSec, msgObj->frTimeEpochNanoSec);
-
-				if(!found)
-				{
-					updateTime(pTcpSession, DATA_RCV);						/* Update Syn Ack Time */
-					initializeSession(pTcpSession, msgObj);
-					updateTcpSession(pTcpSession, msgObj);
-					return;
-				}
-
-				if(pTcpSession->firstDataFlag == false)
-					updateTime(pTcpSession, DATA_RCV);						/* Update Syn Ack Time */
-
-				updateTcpSession(pTcpSession, msgObj);
-				break;
+			break;
 
 		case FIN_RCV:
 				pTcpSession = getSession(msgObj, &found, false);
 
 				/* Couldn't Create Session */
 				if(pTcpSession == NULL) return;
-
-				timeStampArrivalPacket(pTcpSession, msgObj->frTimeEpochSec, msgObj->frTimeEpochNanoSec);
-				updateTime(pTcpSession, FIN_RCV);						/* Update Syn Ack Time */
-				updateTcpSession(pTcpSession, msgObj);
-				flushSession(3, pTcpSession, true);
+				else
+				{
+					timeStampArrivalPacket(pTcpSession, msgObj->frTimeEpochSec, msgObj->frTimeEpochNanoSec);
+					updateTcpSession(pTcpSession, msgObj);
+					flushSession(3, pTcpSession, true);
+				}
 				break;
 
 		default:
-				break;
-
-	}	// End of Main Switch
-	pTcpSession = NULL;
+			break;
+	}
+	pTcpSession = NULL;  // Need to Check (TBD)
 } // End Of updateTCPSession Function
 
 void tcpSMInterface::initializeSession(tcpSession *pIpSession, MPacket *msgObj)
@@ -540,34 +383,29 @@ void tcpSMInterface::updateTcpSession(tcpSession *pIpSession, MPacket *msgObj)
 			break;
 	}
 
-	/*
-	 * Don't flush the TCP Session which don't have connection
-	 */
-	if((pIpSession->frCount >= Global::SESSION_PKT_LIMIT))
+	if(msgObj->tcpFlags != FIN_RCV )
 	{
-		if(pIpSession->state == CONNECTED)
-			pIpSession->causeCode = SYSTEM_PKTLIMIT_TCP_CONN_DATA;
-		else
-			pIpSession->causeCode = SYSTEM_PKTLIMIT_TCP_NOCONN_DATA;
-
-		flushSession(4, pIpSession, false);
-		pIpSession->reuse();
-	}
-	else
-	{
-		if(pIpSession->pckLastTimeEpochSec > pIpSession->startTimeEpochSec)
+		/*
+		 * Don't flush the TCP Session which don't have connection
+		 */
+		if((pIpSession->frCount >= Global::SESSION_PKT_LIMIT))
 		{
-			timeDiff = pIpSession->pckLastTimeEpochSec - pIpSession->startTimeEpochSec;
-
-			if(timeDiff >= Global::SESSION_TIME_LIMIT)
+			pIpSession->causeCode = SYSTEM_PKTLIMIT_TCP_CONN_DATA;
+			flushSession(4, pIpSession, false);
+			pIpSession->reuse();
+		}
+		else
+		{
+			if(pIpSession->pckLastTimeEpochSec > pIpSession->startTimeEpochSec)
 			{
-				if(pIpSession->state == CONNECTED)
-					pIpSession->causeCode = SYSTEM_TIMEOUT_TCP_CONN_DATA;
-				else
-					pIpSession->causeCode = SYSTEM_TIMEOUT_TCP_NOCONN_DATA;
+				timeDiff = pIpSession->pckLastTimeEpochSec - pIpSession->startTimeEpochSec;
 
-				flushSession(8, pIpSession, false);
-				pIpSession->reuse();
+				if(timeDiff >= Global::SESSION_TIME_LIMIT)
+				{
+					pIpSession->causeCode = SYSTEM_TIMEOUT_TCP_CONN_DATA;
+					flushSession(8, pIpSession, false);
+					pIpSession->reuse();
+				}
 			}
 		}
 	}

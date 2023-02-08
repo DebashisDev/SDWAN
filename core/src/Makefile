@@ -13,7 +13,6 @@ OBJS= \
 	AdminPortReader.o 	\
 	BaseConfig.o 		\
 	BWData.o 			\
-	CDNData.o			\
 	EthernetParser.o 	\
 	flusherUtility.o	\
 	GConfig.o 			\

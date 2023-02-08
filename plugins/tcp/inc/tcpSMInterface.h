@@ -65,7 +65,6 @@ class tcpSMInterface : BaseConfig
 			void 		sessionTimedOutFlush(tcpSession *pIpSession, bool endOfDay);
 
 			void		timeStampArrivalPacket(tcpSession *pIpSession, uint64_t epochSec, uint64_t epochNanoSec);
-			void		updateTime(tcpSession *pIpSession, int id);
 
 	public:
 			tcpSMInterface(uint16_t id);
