@@ -55,7 +55,6 @@ class EthernetParser : public BaseConfig
 
 		bool		IsIPInRange(uint32_t ip, uint32_t network, uint32_t mask);
 		void		parseNextLayer(const BYTE packet, MPacket *msgObj);
-		void		getProtocolType(const BYTE packet, MPacket *msgObj);
 		void		getGxProtocolType(const BYTE packet, MPacket *msgObj);
 		void		generateKey(MPacket *msgObj);
 		void   		hexDump(const void* pv, uint16_t len);

@@ -33,27 +33,22 @@ void tcpSMInterface::getMapIndex(MPacket *msgObj, uint32_t &idx)
 	switch(msgObj->ipVer)
 	{
 		case IPVersion4:
-				switch(msgObj->pType)
-				{
-					case PACKET_IPPROTO_TCP:
-					case PACKET_IPPROTO_UDP:
-							switch(msgObj->direction)
-							{
-								case UP:
-										ipV4Key = msgObj->ipv4FlowId;
-										idx = msgObj->sIp % TCP_SESSION_POOL_ARRAY_ELEMENTS;
-										break;
+		{
+			switch(msgObj->direction)
+			{
+				case UP:
+						ipV4Key = msgObj->ipv4FlowId;
+						idx = msgObj->sIp % TCP_SESSION_POOL_ARRAY_ELEMENTS;
+						break;
 
-								case DOWN:
-										ipV4Key = msgObj->ipv4FlowId;
-										idx = msgObj->dIp % TCP_SESSION_POOL_ARRAY_ELEMENTS;
-										break;
-							}
-							break;
-					default:
-							break;
-				}
-				break;
+				case DOWN:
+						ipV4Key = msgObj->ipv4FlowId;
+						idx = msgObj->dIp % TCP_SESSION_POOL_ARRAY_ELEMENTS;
+						break;
+			}
+			break;
+		}
+		break;
 
 //		case IPVersion6:
 //				switch(msgObj->pType)
@@ -86,7 +81,6 @@ void tcpSMInterface::getMapIndex(MPacket *msgObj, uint32_t &idx)
 				break;
 	}
 }
-
 
 /* IP Functions */
 

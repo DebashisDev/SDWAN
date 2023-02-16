@@ -153,9 +153,6 @@ void EthernetParser::fn_decodeIPv4(const BYTE packet, MPacket *msgObj)
 
 		msgObj->direction = getDirectionOnIPV4(msgObj->sIp, msgObj->dIp);
 
-		if(msgObj->pType == PACKET_IPPROTO_UDP)
-				getProtocolType(packet, msgObj);
-
 		if(msgObj->direction == 0) return;
 
 		parseNextLayer(packet + msgObj->ipHLen, msgObj);
@@ -215,18 +212,6 @@ uint8_t EthernetParser::getDirectionOnIPV4(uint32_t &sourceIP, uint32_t &destIP)
 	}
 
 	return direction;
-}
-
-void EthernetParser::getProtocolType(const BYTE packet, MPacket *msgObj)
-{
-	uint16_t	sPort, dPort;
-	sPort = dPort = 0;
-
-	udpHeader = (struct udphdr *)(packet + msgObj->ipHLen);
-
-	sPort = ntohs((unsigned short int)udpHeader->source);
-	dPort = ntohs((unsigned short int)udpHeader->dest);
-
 }
 
 void EthernetParser::parseNextLayer(const BYTE packet, MPacket *msgObj)

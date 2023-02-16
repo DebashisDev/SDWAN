@@ -80,7 +80,6 @@ void udpParser::parseUDPPacket(const BYTE packet, MPacket *msgObj)
     return;
 }
 
-
 void udpParser::parsePacketDNS(const BYTE packet, MPacket *msgObj)
 {
     uint32_t pos = 0, id_pos = 0, retPos = 0;
