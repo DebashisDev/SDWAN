@@ -72,7 +72,9 @@ void udpParser::parseUDPPacket(const BYTE packet, MPacket *msgObj)
 
     if((msgObj->sPort == DNS_PORT) || (msgObj->dPort == DNS_PORT))
     {
-    	if(Global::DNS_ANSWER == 0) return;
+    	if(Global::DNS_ANSWER == 0)
+    	{ return; }
+
     	lockDnsMap();
    		parsePacketDNS(packet + UDP_HDR_LEN, msgObj); // Total Length of UDP message (8)
     	unLockDnsMap();
