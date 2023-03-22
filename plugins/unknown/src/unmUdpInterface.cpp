@@ -649,8 +649,11 @@ void unmUdpInterface::storeDnsSession(uint16_t idx, dnsSession *pDnsSession)
 {
 	uint16_t flusherNo = instanceId % Global::NO_OF_UNM_FLUSHER;
 
-	flusherStore::udns[flusherNo][instanceId][idx][flusherStore::udnsCnt[flusherNo][instanceId][idx]].copy(pDnsSession);
-	flusherStore::udnsCnt[flusherNo][instanceId][idx]++;
+	if(flusherStore::udnsCnt[flusherNo][instanceId][idx + 2] == 0)
+	{
+		flusherStore::udns[flusherNo][instanceId][idx][flusherStore::udnsCnt[flusherNo][instanceId][idx]].copy(pDnsSession);
+		flusherStore::udnsCnt[flusherNo][instanceId][idx]++;
+	}
 
 }
 

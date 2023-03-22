@@ -314,8 +314,13 @@ void udpSMInterface::storeSession(uint16_t tIdx, udpSession *pUdpSession)
 {
 	uint16_t flusherNo = instanceId % Global::NO_OF_UDP_FLUSHER;
 
-	flusherStore::udp[flusherNo][instanceId][tIdx][flusherStore::udpCnt[flusherNo][instanceId][tIdx]].copy(pUdpSession);
-	flusherStore::udpCnt[flusherNo][instanceId][tIdx]++;
+	if(flusherStore::udpCnt[flusherNo][instanceId][tIdx + 2] == 0)
+	{
+		flusherStore::udp[flusherNo][instanceId][tIdx][flusherStore::udpCnt[flusherNo][instanceId][tIdx]].copy(pUdpSession);
+		flusherStore::udpCnt[flusherNo][instanceId][tIdx]++;
+	}
+	else
+	{ eraseSession(pUdpSession); }
 }
 
 void udpSMInterface::sessionTimeOutClean(bool endOfDay)

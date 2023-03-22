@@ -436,8 +436,13 @@ void tcpSMInterface::storeSession(uint16_t timeIndex, tcpSession *pTcpSession)
 {
 	flusherId = instanceId % Global::NO_OF_TCP_FLUSHER;
 
-	flusherStore::tcp[flusherId][instanceId][timeIndex][flusherStore::tcpCnt[flusherId][instanceId][timeIndex]].copy(pTcpSession);
-	flusherStore::tcpCnt[flusherId][instanceId][timeIndex]++;
+	if(flusherStore::tcpCnt[flusherId][instanceId][timeIndex + 2] == 0)
+	{
+		flusherStore::tcp[flusherId][instanceId][timeIndex][flusherStore::tcpCnt[flusherId][instanceId][timeIndex]].copy(pTcpSession);
+		flusherStore::tcpCnt[flusherId][instanceId][timeIndex]++;
+	}
+	else
+	{ eraseSession(pTcpSession); }
 }
 
 void tcpSMInterface::sessionTimeOutClean(bool endOfDay)
