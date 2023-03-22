@@ -277,17 +277,16 @@ void SpectaProbe::start()
 /* Create timer */
 void SpectaProbe::createTimer(uint16_t no)
 {
-	uint16_t timerCpuCore = 0;
 	pGlbTimer = new glbTimer;
 
 	pthread_create(&glbTimerThrId, NULL, startTimerThread, pGlbTimer);
-	pinThread(glbTimerThrId, timerCpuCore);
+	pinThread(glbTimerThrId, Global::TIMER_CPU_CORE);
 
 	while(!pGlbTimer->isGlbTimerInitialized())
 		sleep(1);
 
-	printf("  *** [%02d] Timer Thread Started Successfully. Pinned to CPU Core [%02d]\n", no, timerCpuCore);
-	TheLog_nc_v2(Log::Info, name(),"  *** [%02d] Timer Thread Started Successfully. Pinned to CPU Core [%02d]", no, timerCpuCore);
+	printf("  *** [%02d] Timer Thread Started Successfully. Pinned to CPU Core [%02d]\n", no, Global::TIMER_CPU_CORE);
+	TheLog_nc_v2(Log::Info, name(),"  *** [%02d] Timer Thread Started Successfully. Pinned to CPU Core [%02d]", no, Global::TIMER_CPU_CORE);
 
 }
 

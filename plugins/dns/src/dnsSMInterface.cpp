@@ -376,8 +376,11 @@ void dnsSMInterface::storeSession(uint16_t idx, dnsSession *pDnsSession)
 {
 	uint16_t flusherNo = instanceId % Global::NO_OF_DNS_FLUSHER;
 
-	flusherStore::dns[flusherNo][instanceId][idx][flusherStore::dnsCnt[flusherNo][instanceId][idx]].copy(pDnsSession);
-	flusherStore::dnsCnt[flusherNo][instanceId][idx]++;
+	if(flusherStore::dnsCnt[flusherNo][instanceId][idx + 2] == 0)
+	{
+		flusherStore::dns[flusherNo][instanceId][idx][flusherStore::dnsCnt[flusherNo][instanceId][idx]].copy(pDnsSession);
+		flusherStore::dnsCnt[flusherNo][instanceId][idx]++;
+	}
 }
 
 void dnsSMInterface::sessionTimeOutClean()

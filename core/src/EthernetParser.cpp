@@ -76,15 +76,12 @@ void EthernetParser::parsePacket(const BYTE packet, MPacket *msgObj)
      	case ETH_IP:
      			fn_decodeIPv4(packet + sizeof(struct ether_header), msgObj);
      			break;
-
      	case ETH_8021Q:
      			fn_decode8021Q(packet + sizeof(struct ether_header), msgObj);
      			break;
-
      	case ETH_MPLS_UC:
      			fn_decodeMPLS(packet + sizeof(struct ether_header), msgObj);
      			break;
-
      	default:
      		break;
      }
@@ -104,15 +101,12 @@ void EthernetParser::fn_decode8021Q(const BYTE packet, MPacket *msgObj)
 		case ETH_IP:
 					fn_decodeIPv4((const BYTE)(packet + packetSize), msgObj);
 					break;
-
 		case ETH_8021Q:
 					fn_decode8021Q((const BYTE)(packet + packetSize), msgObj);
 					break;
-
 		case ETH_PPP_SES:
 					fn_decodePPPoE((const BYTE)packet + packetSize, msgObj);
 					break;
-
 		default:
 					break;
 	}
@@ -159,11 +153,7 @@ void EthernetParser::fn_decodeIPv4(const BYTE packet, MPacket *msgObj)
 
 		msgObj->direction = getDirectionOnIPV4(msgObj->sIp, msgObj->dIp);
 
-		if(msgObj->pType == PACKET_IPPROTO_UDP)
-		{ getProtocolType(packet, msgObj); }
-
-		if(msgObj->direction == 0)
-		{ return; }
+		if(msgObj->direction == 0) return;
 
 		parseNextLayer(packet + msgObj->ipHLen, msgObj);
 }
@@ -191,8 +181,7 @@ bool EthernetParser::IsIPInRange(uint32_t ip, uint32_t network, uint32_t mask)
     uint32_t net_upper = (net_lower | (~mask));
 
     if(ip >= net_lower && ip <= net_upper)
-    { return true; }
-
+        return true;
     return false;
 }
 
@@ -219,20 +208,9 @@ uint8_t EthernetParser::getDirectionOnIPV4(uint32_t &sourceIP, uint32_t &destIP)
 	if(Global::PROCESS_OUT_OF_RANGE_IP)
 	{
 		if(direction == 0)
-		{ direction = UNMAPPED; }
+			direction = UNMAPPED;
 	}
 	return direction;
-}
-
-void EthernetParser::getProtocolType(const BYTE packet, MPacket *msgObj)
-{
-	uint16_t	sPort, dPort;
-	sPort = dPort = 0;
-
-	udpHeader = (struct udphdr *)(packet + msgObj->ipHLen);
-
-	sPort = ntohs((unsigned short int)udpHeader->source);
-	dPort = ntohs((unsigned short int)udpHeader->dest);
 }
 
 void EthernetParser::parseNextLayer(const BYTE packet, MPacket *msgObj)

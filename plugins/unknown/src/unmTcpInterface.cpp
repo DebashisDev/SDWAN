@@ -271,8 +271,13 @@ void unmTcpInterface::tcpStoreSession(uint16_t timeIndex, tcpSession *pTcpSessio
 {
 	uint16_t flusherNo = instanceId % Global::NO_OF_UNM_FLUSHER;
 
-	flusherStore::utcp[flusherNo][instanceId][timeIndex][flusherStore::utcpCnt[flusherNo][instanceId][timeIndex]].copy(pTcpSession);
-	flusherStore::utcpCnt[flusherNo][instanceId][timeIndex]++;
+	if(flusherStore::utcpCnt[flusherNo][instanceId][timeIndex + 2] == 0)
+	{
+		flusherStore::utcp[flusherNo][instanceId][timeIndex][flusherStore::utcpCnt[flusherNo][instanceId][timeIndex]].copy(pTcpSession);
+		flusherStore::utcpCnt[flusherNo][instanceId][timeIndex]++;
+	}
+	else
+	{ tcpEraseSession(pTcpSession); }
 }
 
 void unmTcpInterface::tcpTimeOutClean()

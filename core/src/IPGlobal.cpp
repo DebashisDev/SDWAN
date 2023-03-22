@@ -166,6 +166,7 @@ namespace Global
 	bool		PROCESS_OUT_OF_RANGE_IP						= false;
 	bool		PACKET_PROCESSING[MAX_INTERFACE_SUPPORT] 	= {false, false, false, false, false, false, false, false};
 	bool		ADMIN_FLAG 									= false;
+	uint16_t	TIMER_CPU_CORE								= 0;
 	uint16_t	DNS_DUMP_HOUR 								= 4;
 	uint16_t	TIME_INDEX 									= 10;
 	uint16_t	SLEEP_TIME									= 25000;

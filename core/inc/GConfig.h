@@ -38,6 +38,7 @@ class GConfig
 		void	get_dataDir(std::string& Key);
 		void	get_xdrDir(std::string& Key);
 		void	get_unKnownXdrDir(std::string& Key);
+		void	get_timerCPU(std::string& Key);
 		void	get_adminFlag(std::string& Key);
 		void	get_adminPort(std::string& Key);
 		void	get_ethernetInterface(std::string& Key);

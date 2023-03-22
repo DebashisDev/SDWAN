@@ -516,6 +516,7 @@ namespace Global
 	extern bool			PROCESS_OUT_OF_RANGE_IP;
 	extern bool			PACKET_PROCESSING[MAX_INTERFACE_SUPPORT];
 	extern bool			ADMIN_FLAG;
+	extern uint16_t		TIMER_CPU_CORE;
 	extern uint16_t		DNS_DUMP_HOUR;
 	extern uint16_t		TIME_INDEX;
 	extern uint16_t		SLEEP_TIME;

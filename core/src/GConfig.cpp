@@ -38,6 +38,7 @@ void GConfig::initialize(char *fileName)
 		get_unKnownXdrDir(Key);							/* UNKNOWN_XDR_DIR */
 
 		/* Admin Setting */
+		get_timerCPU(Key);								/* TIMER_CPU_CORE */
 		get_adminFlag(Key);								/* ADMIN_FLAG */
 		get_adminPort(Key);								/* ADMIN_PORT */
 
@@ -215,6 +216,18 @@ void GConfig::get_unKnownXdrDir(std::string& Key)
 }
 
 /* Admin Setting */
+
+void GConfig::get_timerCPU(std::string& Key)
+{
+	Value.clear();
+
+	if(Key.compare("TIMER_CPU_CORE") == 0)
+	{
+		fp >> Value;
+		Global::TIMER_CPU_CORE = atol(Value.c_str());
+		printf("%50s\t%50d\n", "TIMER_CORE", Global::TIMER_CPU_CORE);
+	}
+}
 
 void GConfig::get_adminFlag(std::string& Key)
 {

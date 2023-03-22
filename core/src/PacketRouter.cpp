@@ -198,11 +198,13 @@ void PacketRouter::pushTcpPacketToSm(int16_t smid, MPacket *msgObj)
 	switch(msgObj->direction)
 	{
 		case UNMAPPED:
-			copyMsgObj(idx, SmStore::unBusy[smid][intfId][routerId][idx], SmStore::unCnt[smid][intfId][routerId][idx], SmStore::unStore[smid][intfId][routerId][idx], msgObj);
+			if(SmStore::unCnt[smid][intfId][routerId][idx + 2] == 0)
+				copyMsgObj(idx, SmStore::unBusy[smid][intfId][routerId][idx], SmStore::unCnt[smid][intfId][routerId][idx], SmStore::unStore[smid][intfId][routerId][idx], msgObj);
 			break;
 
 		default:
-			copyMsgObj(idx, SmStore::tcpBusy[smid][intfId][routerId][idx], SmStore::tcpCnt[smid][intfId][routerId][idx], SmStore::tcpStore[smid][intfId][routerId][idx], msgObj);
+			if(SmStore::tcpCnt[smid][intfId][routerId][idx + 2] == 0)
+				copyMsgObj(idx, SmStore::tcpBusy[smid][intfId][routerId][idx], SmStore::tcpCnt[smid][intfId][routerId][idx], SmStore::tcpStore[smid][intfId][routerId][idx], msgObj);
 			break;
 	}
 }
@@ -247,11 +249,13 @@ void PacketRouter::pushUdpPacketToSm(int16_t smid, MPacket *msgObj)
 	switch(msgObj->direction)
 	{
 		case UNMAPPED:
-			copyMsgObj(idx, SmStore::unBusy[smid][intfId][routerId][idx], SmStore::unCnt[smid][intfId][routerId][idx], SmStore::unStore[smid][intfId][routerId][idx], msgObj);
+			if(SmStore::unCnt[smid][intfId][routerId][idx + 2] == 0)
+				copyMsgObj(idx, SmStore::unBusy[smid][intfId][routerId][idx], SmStore::unCnt[smid][intfId][routerId][idx], SmStore::unStore[smid][intfId][routerId][idx], msgObj);
 			break;
 
 		default:
-			copyMsgObj(idx, SmStore::udpBusy[smid][intfId][routerId][idx], SmStore::udpCnt[smid][intfId][routerId][idx], SmStore::udpStore[smid][intfId][routerId][idx], msgObj);
+			if(SmStore::udpCnt[smid][intfId][routerId][idx + 2] == 0)
+				copyMsgObj(idx, SmStore::udpBusy[smid][intfId][routerId][idx], SmStore::udpCnt[smid][intfId][routerId][idx], SmStore::udpStore[smid][intfId][routerId][idx], msgObj);
 			break;
 	}
 }
@@ -296,15 +300,16 @@ void PacketRouter::pushDnsPacketToSm(int16_t smid, MPacket *msgObj)
 	switch(msgObj->direction)
 	{
 		case UNMAPPED:
-			copyMsgObj(idx, SmStore::unBusy[smid][intfId][routerId][idx], SmStore::unCnt[smid][intfId][routerId][idx], SmStore::unStore[smid][intfId][routerId][idx], msgObj);
+			if(SmStore::unCnt[smid][intfId][routerId][idx + 2] == 0)
+				copyMsgObj(idx, SmStore::unBusy[smid][intfId][routerId][idx], SmStore::unCnt[smid][intfId][routerId][idx], SmStore::unStore[smid][intfId][routerId][idx], msgObj);
 			break;
 
 		default:
-			copyMsgObj(idx, SmStore::dnsBusy[smid][intfId][routerId][idx], SmStore::dnsCnt[smid][intfId][routerId][idx], SmStore::dnsStore[smid][intfId][routerId][idx], msgObj);
+			if(SmStore::dnsCnt[smid][intfId][routerId][idx + 2] == 0)
+				copyMsgObj(idx, SmStore::dnsBusy[smid][intfId][routerId][idx], SmStore::dnsCnt[smid][intfId][routerId][idx], SmStore::dnsStore[smid][intfId][routerId][idx], msgObj);
 			break;
 	}
 }
-
 
 void PacketRouter::copyMsgObj(uint16_t idx, bool &busy, uint32_t &counter, std::unordered_map<uint32_t, MPacket> &smStore, MPacket *msgObj)
 {

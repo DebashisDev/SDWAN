@@ -11,7 +11,7 @@
 #############################################################
 
 PROBE_VER=3.6.0.2
-PROBE_ROOT=/home/specta/workspace/debashis/code/SpectaProbe-V3.6.0.2
+PROBE_ROOT=/home/jyoti/workspace/SDWAN
 PROBE_CONF=${PROBE_ROOT}/config
 
 export PROBE_VER
