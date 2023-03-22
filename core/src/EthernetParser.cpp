@@ -210,7 +210,6 @@ uint8_t EthernetParser::getDirectionOnIPV4(uint32_t &sourceIP, uint32_t &destIP)
 		if(direction == 0)
 			direction = UNMAPPED;
 	}
-
 	return direction;
 }
 
