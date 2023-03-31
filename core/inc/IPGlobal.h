@@ -233,6 +233,8 @@ typedef struct _MPacket
 	uint8_t		responseCode;
 	char 		sIpv6[IPV6_ADDR_LEN];
 	char		dIpv6[IPV6_ADDR_LEN];
+	char 		sMac[MAC_ADDR_LEN];
+	char		dMac[MAC_ADDR_LEN];
 	char 		url[URL_LEN];
 	char		replyMsg[35];
 	char		resolvedIp[IPV6_ADDR_LEN];
@@ -272,6 +274,8 @@ typedef struct _MPacket
 		this->responseCode		= mpkt.responseCode;
 		strcpy(this->sIpv6, mpkt.sIpv6);
 		strcpy(this->dIpv6, mpkt.dIpv6);
+		strcpy(this->sMac, mpkt.sMac);
+		strcpy(this->dMac, mpkt.dMac);
 		strcpy(this->url, mpkt.url);
 		strcpy(this->replyMsg, mpkt.replyMsg);
 		strcpy(this->resolvedIp, mpkt.resolvedIp);
@@ -309,6 +313,8 @@ typedef struct _MPacket
 		this->responseCode		= mpkt->responseCode;
 		strcpy(this->sIpv6, mpkt->sIpv6);
 		strcpy(this->dIpv6, mpkt->dIpv6);
+		strcpy(this->sMac, mpkt->sMac);
+		strcpy(this->dMac, mpkt->dMac);
 		strcpy(this->url, mpkt->url);
 		strcpy(this->replyMsg, mpkt->replyMsg);
 		strcpy(this->resolvedIp, mpkt->resolvedIp);
@@ -346,6 +352,8 @@ typedef struct _MPacket
 		this->responseCode		= 3;
 		this->sIpv6[0]			= 0;
 		this->dIpv6[0]			= 0;
+		this->sMac[0]			= 0;
+		this->dMac[0]			= 0;
 		this->url[0]			= 0;
 		strcpy(this->replyMsg, "NA");
 		this->resolvedIp[0] 	= 0;

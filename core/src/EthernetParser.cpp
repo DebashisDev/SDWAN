@@ -69,6 +69,10 @@ void EthernetParser::hexDump(const void* pv, uint16_t len)
 
 void EthernetParser::parsePacket(const BYTE packet, MPacket *msgObj)
 {
+	/* Decode Mac */
+    sprintf(msgObj->dMac, "%02x:%02x:%02x:%02x:%02x:%02x", packet[0], packet[1], packet[2], packet[3], packet[4], packet[5]);
+    sprintf(msgObj->sMac, "%02x:%02x:%02x:%02x:%02x:%02x", packet[6], packet[7], packet[8], packet[9], packet[10], packet[11]);
+
 	uint16_t type = packet[ethOffset] * 256 + packet[ethOffset + 1];		/* Ethernet Containing Protocol */
 
     switch(type)

@@ -205,6 +205,7 @@ void udpSMInterface::initializeSession(udpSession *pUdpSession, MPacket *msgObj)
 				}
 				pUdpSession->sPort = msgObj->sPort;
 				pUdpSession->dPort = msgObj->dPort;
+				strcpy(pUdpSession->sMac, msgObj->sMac);
 				break;
 
 		case DOWN:
@@ -217,6 +218,7 @@ void udpSMInterface::initializeSession(udpSession *pUdpSession, MPacket *msgObj)
 				}
 				pUdpSession->sPort = msgObj->dPort;
 				pUdpSession->dPort = msgObj->sPort;
+				strcpy(pUdpSession->sMac, msgObj->dMac);
 				break;
 	}
 
