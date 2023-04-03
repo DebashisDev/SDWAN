@@ -291,6 +291,7 @@ void tcpSMInterface::initializeSession(tcpSession *pIpSession, MPacket *msgObj)
 						pIpSession->dIpv4 = msgObj->dIp;
 						pIpSession->sPort = msgObj->sPort;
 						pIpSession->dPort = msgObj->dPort;
+						strcpy(pIpSession->sMac, msgObj->sMac);
 						break;
 
 					case DOWN:
@@ -298,6 +299,7 @@ void tcpSMInterface::initializeSession(tcpSession *pIpSession, MPacket *msgObj)
 						pIpSession->dIpv4 = msgObj->sIp;
 						pIpSession->sPort = msgObj->dPort;
 						pIpSession->dPort = msgObj->sPort;
+						strcpy(pIpSession->sMac, msgObj->dMac);
 						break;
 				}
 				break;

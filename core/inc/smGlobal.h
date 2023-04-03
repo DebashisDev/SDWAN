@@ -209,6 +209,7 @@ typedef struct _tcpSession
 	uint64_t	ipV4sessionKey;
 	uint64_t 	flushTime;
 	uint64_t 	lastActivityTimeEpohSec;
+	char		sMac[MAC_ADDR_LEN];
 
 	~_tcpSession(){}
 
@@ -253,6 +254,7 @@ typedef struct _tcpSession
 	    this->ipV4sessionKey 			= 0;
 	    this->flushTime 				= 0;
 	    this->lastActivityTimeEpohSec 	= 0;
+	    this->sMac[0]					= 0;
 	}
 
 	void reuse()
@@ -321,6 +323,7 @@ typedef struct _tcpSession
 	    this->ipV4sessionKey 			= obj.ipV4sessionKey;
 	    this->flushTime 				= obj.flushTime;
 	    this->lastActivityTimeEpohSec 	= obj.lastActivityTimeEpohSec;
+	    strcpy(this->sMac, obj.sMac);
 	}
 
 	void copy(const _tcpSession* obj)
@@ -361,6 +364,7 @@ typedef struct _tcpSession
 	    this->ipV4sessionKey 			= obj->ipV4sessionKey;
 	    this->flushTime 				= obj->flushTime;
 	    this->lastActivityTimeEpohSec 	= obj->lastActivityTimeEpohSec;
+	    strcpy(this->sMac, obj->sMac);
 	}
 }tcpSession;
 
