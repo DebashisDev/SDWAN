@@ -46,6 +46,7 @@ class EthernetParser : public BaseConfig
 		uint16_t 		interfaceId;
 		uint16_t 		routerId;
 		uint16_t 		packetSize;
+		uint32_t 		net_upper;
 
 		struct vlan_tag *ptr_vlan_t;
 

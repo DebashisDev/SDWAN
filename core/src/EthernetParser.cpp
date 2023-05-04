@@ -182,9 +182,9 @@ void EthernetParser::abstractIpv4Address(const BYTE packet, MPacket *msgObj)
 bool EthernetParser::IsIPInRange(uint32_t ip, uint32_t network, uint32_t mask)
 {
     uint32_t net_lower = (network & mask);
-    uint32_t net_upper = (net_lower | (~mask));
+    net_upper = (net_lower | (~mask));
 
-    if(ip >= net_lower && ip <= net_upper)
+    if(ip > net_lower && ip < net_upper)
         return true;
     return false;
 }
@@ -199,13 +199,19 @@ uint8_t EthernetParser::getDirectionOnIPV4(uint32_t &sourceIP, uint32_t &destIP)
 	{
 		if(IsIPInRange(sourceIP, Global::IPV4_RANGE[counter][0], Global::IPV4_RANGE[counter][1]))
 		{
-			direction = UP;
-			break;
+			if(destIP != net_upper)
+			{
+				direction = UP;
+				break;
+			}
 		}
 		else if(IsIPInRange(destIP, Global::IPV4_RANGE[counter][0], Global::IPV4_RANGE[counter][1]))
 		{
-			direction = DOWN;
-			break;
+			if(sourceIP != net_upper)
+			{
+				direction = DOWN;
+				break;
+			}
 		}
 	}
 

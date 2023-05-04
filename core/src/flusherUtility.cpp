@@ -77,7 +77,7 @@ void flusherUtility::buildUdpXdr(udpSession *pUdpSession, char *xdr)
 				 "%d,"				// 25- Cause Code,
 				 "%s,"				// 26- URL,
 				 "%d,%lu,"			// 27- Flush Id		   28- Flush time
-				 "%d,%s",				// 29- Ip version
+				 "%d,%s",				// 29- Ip version 30 - Mac Address
 
 			Global::PROBE_ID, IP_XDR_ID, pUdpSession->protocolType, initalize::protocolName[pUdpSession->protocolType].c_str(),
 			sessionKey.c_str(), pUdpSession->sliceCounter,
@@ -136,10 +136,10 @@ void flusherUtility::buildTcpXdr(tcpSession *pTcpSession, char *xdr)
 					 "%d,%d,%d,"		// 18- Payload Pkt,    19- Up Payload Pkt,     20- Dn Payload Pkt,
 					 "%u,%u,%u,"		// 21- Payload Size,   22- Up Payload Size,    23- Dn Payload Size,
 					 "%lu,"			    // 24- Start Time,
-					 "%d,"				// 25- Cause Code,
-					 "%s,"				// 26- URL,
-					 "%d,%u,"			// 27- Flush Id		   28- Flush time
-					 "%d,%s",			// 29- Ip version
+					 "%d,"				// 26- Cause Code,
+					 "%s,"				// 27- URL,
+					 "%d,%u,"			// 28- Flush Id		   29- Flush time
+					 "%d,%s",				// 30- Ip version // 31- Mac Address
 
 				Global::PROBE_ID, IP_XDR_ID, pTcpSession->protocolType, initalize::protocolName[pTcpSession->protocolType].c_str(),
 				sessionKey.c_str(), pTcpSession->sliceCounter,
